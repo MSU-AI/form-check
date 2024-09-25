@@ -12,9 +12,13 @@ import "react-native-reanimated";
 import { createTamagui, TamaguiProvider } from "tamagui";
 import defaultConfig from "@tamagui/config/v3";
 
+<<<<<<< HEAD
 const config = createTamagui(defaultConfig);
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+=======
+import { useColorScheme } from '@/hooks/useColorScheme';
+>>>>>>> 3231a86 (Added sign in page and connected firebase auth)
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -37,6 +41,7 @@ export default function RootLayout() {
   }
 
   return (
+<<<<<<< HEAD
     <TamaguiProvider config={config}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack initialRouteName="signin">
@@ -48,5 +53,14 @@ export default function RootLayout() {
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
+=======
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack initialRouteName='signin'>
+        <Stack.Screen name="signin" options={{ headerShown: false }} />
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </ThemeProvider>
+>>>>>>> 3231a86 (Added sign in page and connected firebase auth)
   );
 }
