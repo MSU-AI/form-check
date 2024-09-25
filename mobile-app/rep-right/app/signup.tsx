@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { Button, TextInput, View, StyleSheet, Image, Text, TouchableOpacity, Pressable } from 'react-native';
+import { Button, TextInput, View, StyleSheet, Image, Text, Pressable } from 'react-native';
 import EmailPasswordButtonBox from './(components)/email-password-button-box';
 import { router } from 'expo-router';
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
-    async function handleSignIn(): Promise<void> {
+    async function handleSignUp(): Promise<void> {
         setLoading(true)
 
-        // placeholder to make it load for a seocnd
+        // placeholder to make it load for a second
         setTimeout(() => setLoading(false), 1000);
     }
 
@@ -20,11 +21,10 @@ export default function SignInScreen() {
             {/* <Image
                 source={require('../assets/images/icon.png')}
                 style={{ width: 80, height: 80 }} /> */}
-            <Text style={styles.signInTextStyle}>Sign In</Text>
-            <EmailPasswordButtonBox email={email} setEmail={setEmail} password={password} setPassword={setPassword} loading={loading} handleSignIn={handleSignIn} buttonText='Sign In' />
-            {/* <Button style={styles.signUpButtonStyle} title='Sign Up' onPress={() => { router.replace('/signup') }} /> */}
-            <Pressable style={styles.signUpButtonStyle} onPress={() => { router.replace('/signup') }}>
-                <Text style={{ color: 'blue' }}>Sign Up</Text>
+            <Text style={styles.signUpTextStyle}>Sign Up</Text>
+            <EmailPasswordButtonBox email={email} setEmail={setEmail} password={password} setPassword={setPassword} loading={loading} handleSignIn={handleSignUp} buttonText='Sign Up' />
+            <Pressable style={styles.signInButtonStyle} onPress={() => { router.replace('/signin') }}>
+                <Text style={{ color: 'blue' }}>Sign In</Text>
             </Pressable>
         </View>
     );
@@ -39,11 +39,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         display: 'flex',
     },
-    signInTextStyle: {
+    signUpTextStyle: {
         fontSize: 20,
         marginBottom: 20,
     },
-    signUpButtonStyle: {
+    signInButtonStyle: {
         position: 'absolute',
         bottom: 10,
         left: 10,
