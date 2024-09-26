@@ -39,6 +39,10 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "tamagui": "^1.112.0",
+<<<<<<< HEAD
+=======
+    "expo-camera": "~15.0.16"
+>>>>>>> 575a3ce (Add camera functionality)
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
