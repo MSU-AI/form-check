@@ -80,7 +80,7 @@ export default function SignInScreen() {
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
-            placeholderTextColor="$gray7"
+            placeholderTextColor="$gray10"
             padding="$3"
             borderRadius="$4"
             borderColor="$borderColor"
@@ -92,7 +92,7 @@ export default function SignInScreen() {
             value={password}
             onChangeText={setPassword}
             placeholder="Password"
-            placeholderTextColor="$gray7"
+            placeholderTextColor="$gray10"
             secureTextEntry
             padding="$3"
             borderRadius="$4"
@@ -115,7 +115,12 @@ export default function SignInScreen() {
           >
             {loading ? "Signing In..." : "Sign In"}
           </Button>
-          <Text marginTop={10} color="$gray10" textAlign="center">
+          <Text
+            marginTop={5}
+            color="$gray10"
+            fontWeight="bold"
+            textAlign="center"
+          >
             Don't have an account?
           </Text>
           <Button
