@@ -2,18 +2,33 @@ import { useState } from 'react';
 import { Button, TextInput, View, StyleSheet, Image, Text, Pressable } from 'react-native';
 import EmailPasswordButtonBox from './(components)/email-password-button-box';
 import { router } from 'expo-router';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 
 export default function SignUpScreen() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const auth = getAuth();
 
     async function handleSignUp(): Promise<void> {
         setLoading(true)
-
-        // placeholder to make it load for a second
-        setTimeout(() => setLoading(false), 1000);
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed up 
+                const user = userCredential.user;
+                // ...
+                router.replace('/(app)');
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ..
+                alert(`Error code ${errorCode}: ${errorMessage}`);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }
 
     return (

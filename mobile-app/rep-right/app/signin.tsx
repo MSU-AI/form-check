@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TextInput, View, StyleSheet, Image, Text, TouchableOpacity, Pressable } from 'react-native';
 import EmailPasswordButtonBox from './(components)/email-password-button-box';
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { Button } from 'tamagui';
 
 export default function SignInScreen() {
@@ -13,19 +13,22 @@ export default function SignInScreen() {
 
     async function handleSignIn(): Promise<void> {
         setLoading(true)
-        createUserWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed up 
                 const user = userCredential.user;
                 // ...
+                router.replace('/(app)/(tabs)/explore');
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 // ..
+                alert(`Error code ${errorCode}: ${errorMessage}`);
+            })
+            .finally(() => {
+                setLoading(false);
             });
-        // placeholder to make it load for a seocnd
-        setTimeout(() => setLoading(false), 1000);
     }
 
     return (
