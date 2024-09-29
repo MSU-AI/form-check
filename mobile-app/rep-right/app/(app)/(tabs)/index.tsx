@@ -1,5 +1,8 @@
 import React from "react";
 import { Image, StyleSheet, Platform } from "react-native";
+// import * as PoseDetectionVideo from 'pose-detection-video';
+// import * as PoseDetectionVideo from '../../../pose-detection-module/src/PoseDetectionVideoModule';
+import { hello } from '../../../modules/pose-detection-video';
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -18,7 +21,7 @@ export default function HomeScreen() {
       }
     >
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome HERE!</ThemedText>
+        <ThemedText type="title">Welcome {/*hello()*/}</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
