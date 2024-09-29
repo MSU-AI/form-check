@@ -4,8 +4,21 @@
     "jsx": "react",
     "strict": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ],
+      // "pose-detection-video": [
+      //   "./pose-detection-module/src/index"
+      // ],
+      // "pose-detection-video/*": [
+      //   "./pose-detection-module/src/*"
+      // ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }
