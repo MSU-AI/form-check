@@ -13,6 +13,10 @@ export function hello(): string {
   return PoseDetectionVideoModule.hello();
 }
 
+export async function processVideoAsync(uri: string): Promise<Array<object>> {
+  return await PoseDetectionVideoModule.processVideoAsync(uri);
+}
+
 export async function setValueAsync(value: string) {
   return await PoseDetectionVideoModule.setValueAsync(value);
 }
