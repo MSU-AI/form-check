@@ -2,11 +2,38 @@ package expo.modules.posedetectionvideo
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import java.lang.Exception
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.PoseDetector;
+import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import kotlin.reflect.full.memberProperties
 
 class PoseDetectionVideoModule : Module() {
   // Each module class must implement the definition function. The definition consists of components
   // that describes the module's functionality and behavior.
   // See https://docs.expo.dev/modules/module-api for more details about available components.
+
+  // Base pose detector with streaming frames, when depending on the pose-detection sdk
+  val options = PoseDetectorOptions.Builder()
+          .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
+          .build();
+  val poseDetector = PoseDetection.getClient(options);
+
+  private class YourImageAnalyzer : ImageAnalysis.Analyzer {
+
+    override fun analyze(imageProxy: ImageProxy) {
+      val mediaImage = imageProxy.image
+      if (mediaImage != null) {
+        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+        // Pass image to an ML Kit Vision API
+        // ...
+      }
+      imageProxy.close() // Don't forget to close the imageProxy to avoid memory leaks
+    }
+  }
   override fun definition() = ModuleDefinition {
     // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
     // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
@@ -26,6 +53,31 @@ class PoseDetectionVideoModule : Module() {
       "Hello world! 👋"
     }
 
+//    AsyncFunction("processVideoAsync") { uri: String ->
+//      try {
+//        val framesWithPositions = processVideoFrames(uri);
+//
+//        // Return the result by converting each frame's properties to a map using reflection
+//        framesWithPositions.map { frame ->
+//          frame.toMap() // This converts all properties of the frame to a map
+//        }
+//      } catch(e: Exception) {
+//        promise.reject("ERROR", "Failed to process video: ${e.message}");
+//      }
+//    }
+    AsyncFunction("processVideoAsync") { uri: String ->
+      try {
+        val framesWithPositions = processVideoFrames(uri)
+
+        // Convert each frame to a map using reflection
+        framesWithPositions.map { frame ->
+          frame.toMap()
+        }
+      } catch (e: Exception) {
+        throw Exception("Failed to process video: ${e.message}")
+      }
+    }
+
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
     AsyncFunction("setValueAsync") { value: String ->
@@ -42,6 +94,28 @@ class PoseDetectionVideoModule : Module() {
       Prop("name") { view: PoseDetectionVideoView, prop: String ->
         println(prop)
       }
+    }
+  }
+
+  // Function to simulate video frame processing and elbow detection
+  private fun processVideoFrames(videoUri: String): List<FrameData> { // 30 fps?
+    // For simplicity, we're returning mock data
+    return listOf(
+            FrameData(1, Position(100, 200), Position(150, 200)),
+            FrameData(2, Position(102, 202), Position(152, 202))
+    )
+  }
+
+  // Data class representing frame data
+  data class FrameData(val frameNumber: Int, val leftElbow: Position, val rightElbow: Position)
+
+  // Data class representing an elbow's position
+  data class Position(val x: Int, val y: Int)
+
+  // Extension function to convert any data class to a Map using Kotlin reflection
+  fun <T : Any> T.toMap(): Map<String, Any?> {
+    return this::class.memberProperties.associate { prop ->
+      prop.name to prop.get(this)
     }
   }
 }
