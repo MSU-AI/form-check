@@ -11,9 +11,14 @@ import { ThemedView } from "@/components/ThemedView";
 
 export default function HomeScreen() {
   useEffect(() => {
-    processVideoAsync("uristuff").then((response) => {
-      setStuffInAwait(response);
-    });
+    processVideoAsync("uristuff")
+      .then((response) => {
+        // setStuffInAwait(response);
+        console.log("This is the stuff in await", response);
+      })
+      .catch((error) => {
+        console.log("Error: ", error);
+      });
   }, []);
 
   const [stuffInAwait, setStuffInAwait] = React.useState<any>(null);

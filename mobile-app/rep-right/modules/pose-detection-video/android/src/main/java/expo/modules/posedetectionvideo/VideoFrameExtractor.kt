@@ -4,6 +4,7 @@ import android.net.Uri
 import android.content.Context
 import com.google.mlkit.vision.common.InputImage
 
+class InvalidVideoException(message: String) : Exception(message)
 class VideoFrameExtractor {
     companion object {
         // Method to extract InputImage objects from a video URI
@@ -11,12 +12,16 @@ class VideoFrameExtractor {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(context, videoUri)
             val inputImages: MutableList<InputImage> = java.util.ArrayList<InputImage>()
-            val time: String = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            val timeFromRetriever: String? = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            if (timeFromRetriever == null) {
+                throw InvalidVideoException("Not able to extract video duration.")
+            }
+            val time: String = timeFromRetriever!!;
             val durationMs: Long = time.toLong() * 1000
             var i: Long = 0
             while (i < durationMs) {
                 // 1-second interval
-                val frame: Bitmap = retriever.getFrameAtTime(i, MediaMetadataRetriever.OPTION_CLOSEST)
+                val frame: Bitmap? = retriever.getFrameAtTime(i, MediaMetadataRetriever.OPTION_CLOSEST)
                 if (frame != null) {
                     val image: InputImage = InputImage.fromBitmap(frame, 0)
                     inputImages.add(image)

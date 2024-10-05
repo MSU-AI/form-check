@@ -9,7 +9,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
-import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.memberProperties;
 
 class PoseDetectionVideoModule : Module() {
   // Each module class must implement the definition function. The definition consists of components
@@ -17,10 +17,11 @@ class PoseDetectionVideoModule : Module() {
   // See https://docs.expo.dev/modules/module-api for more details about available components.
 
   // Base pose detector with streaming frames, when depending on the pose-detection sdk
-  val options = PoseDetectorOptions.Builder()
-          .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-          .build();
-  val poseDetector = PoseDetection.getClient(options);
+//  val options = PoseDetectorOptions.Builder()
+//          .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
+//          .build();
+//  val options = PoseDetectorOptionsBase;
+//  val poseDetector = PoseDetection.getClient(options);
 
   private class YourImageAnalyzer : ImageAnalysis.Analyzer {
 
@@ -67,12 +68,20 @@ class PoseDetectionVideoModule : Module() {
 //    }
     AsyncFunction("processVideoAsync") { uri: String ->
       try {
-        val framesWithPositions = processVideoFrames(uri)
+        val framesWithPositions = processVideoFrames(uri);
+        println(framesWithPositions)
 
         // Convert each frame to a map using reflection
-        framesWithPositions.map { frame ->
+//        val framesList = Arguments.createArray();
+//        framesWithPositions.map { frame ->
+//          //frame.toMap()
+////          framesList.pushMap(frame.toWritableMap());
+//        }
+        val framesList = framesWithPositions.map { frame ->
           frame.toMap()
         }
+        //promise.resolve(framesList);
+        return@AsyncFunction framesList;
       } catch (e: Exception) {
         throw Exception("Failed to process video: ${e.message}")
       }
@@ -97,6 +106,35 @@ class PoseDetectionVideoModule : Module() {
     }
   }
 
+  fun Position.toMap(): Map<String, Double> {
+    return mapOf("x" to this.x.toDouble(), "y" to this.y.toDouble())
+  }
+
+  fun FrameData.toMap(): Map<String, Any> {
+    return mapOf(
+            "frameNumber" to this.frameNumber,
+            "leftElbow" to this.leftElbow.toMap(),
+            "rightElbow" to this.rightElbow.toMap()
+    )
+  }
+
+//    // Function to convert Position to WritableMap
+//  fun Position.toWritableMap(): WritableMap {
+//      val map = Arguments.createMap()
+//      map.putDouble("x", this.x.toDouble())
+//      map.putDouble("y", this.y.toDouble())
+//      return map
+//  }
+//
+//  // Function to convert FrameData to WritableMap
+//  fun FrameData.toWritableMap(): WritableMap {
+//      val map = Arguments.createMap()
+//      map.putInt("frameNumber", this.frameNumber)
+//      map.putMap("leftElbow", this.leftElbow.toWritableMap())
+//      map.putMap("rightElbow", this.rightElbow.toWritableMap())
+//      return map
+//  }
+
   // Function to simulate video frame processing and elbow detection
   private fun processVideoFrames(videoUri: String): List<FrameData> { // 30 fps?
     // For simplicity, we're returning mock data
@@ -112,10 +150,16 @@ class PoseDetectionVideoModule : Module() {
   // Data class representing an elbow's position
   data class Position(val x: Int, val y: Int)
 
-  // Extension function to convert any data class to a Map using Kotlin reflection
+//  // Extension function to convert any data class to a Map using Kotlin reflection
+//  fun <T : Any> T.toMap(): Map<String, Any?> {
+//    return this::class.memberProperties.associate { prop ->
+//      prop.name to prop.get(this)
+//    }
+//  }
+
   fun <T : Any> T.toMap(): Map<String, Any?> {
     return this::class.memberProperties.associate { prop ->
-      prop.name to prop.get(this)
+      prop.name to prop.getter.call(this)
     }
   }
 }
