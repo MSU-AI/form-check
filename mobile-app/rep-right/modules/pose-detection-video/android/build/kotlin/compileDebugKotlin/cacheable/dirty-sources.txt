@@ -1,3 +1,0 @@
-C:\Users\dbere\Desktop\RepRight\form-check\mobile-app\rep-right\modules\pose-detection-video\android\src\main\java\expo\modules\posedetectionvideo\PoseDetectionVideoView.kt
-C:\Users\dbere\Desktop\RepRight\form-check\mobile-app\rep-right\modules\pose-detection-video\android\src\main\java\expo\modules\posedetectionvideo\PoseDetectionVideoModule.kt
-C:\Users\dbere\Desktop\RepRight\form-check\mobile-app\rep-right\modules\pose-detection-video\android\src\main\java\expo\modules\posedetectionvideo\VideoFrameExtractor.kt
