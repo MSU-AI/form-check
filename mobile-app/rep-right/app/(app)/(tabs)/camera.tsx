@@ -1,25 +1,46 @@
-import React from "react";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import React, { useEffect, useRef } from "react";
+import { CameraView, CameraType, useCameraPermissions, Camera, CameraViewRef, PermissionResponse } from "expo-camera";
 import { useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Button, GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function CameraViewScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
+  const [recording, setRecording] = useState(false);
+  // const [cameraRef, setCameraRef] = useState<CameraView | null>(null);
+  const cameraRef = useRef<CameraView>(null);
+  // const [permissionMic, requestMicPermission] = Camera.useMicrophonePermissions();
+  const [permissionMic, setPermissionMic] = useState<PermissionResponse | null>(null);
+  const [videoUri, setVideoUri] = useState<string | null>(null);
 
   if (!permission) {
     // Camera permissions are still loading.
     return <View />;
   }
 
-  if (!permission.granted) {
+  // useEffect(() => {
+  //   async function getMicrophonePermissions() {
+  //     const micPermission = await Camera.getMicrophonePermissionsAsync();
+  //     if (!micPermission.granted) {
+  //       const requestedMicPermission = await Camera.requestMicrophonePermissionsAsync();
+  //       setPermissionMic(requestedMicPermission);
+  //     } else {
+  //       setPermissionMic(micPermission);
+  //     }
+  //   }
+
+  //   getMicrophonePermissions();
+  // }, []);
+
+  if (!permission.granted || (permissionMic && !permissionMic.granted)) {
     // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
         <Text style={styles.message}>
           We need your permission to show the camera
         </Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        {!permission.granted && <Button onPress={requestPermission} title="grant permission" />}
+        {/* {!permissionMic!.granted && <Button onPress={async () => setPermissionMic(await Camera.requestMicrophonePermissionsAsync())} title="grant microphone permission" />} */}
       </View>
     );
   }
@@ -28,18 +49,61 @@ export default function CameraViewScreen() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
+  async function toggleRecording(event: GestureResponderEvent): Promise<void> {
+    // throw new Error("Function not implemented.");
+    const micPerms = await Camera.getMicrophonePermissionsAsync();
+    // if (!cameraPerms.granted) {
+    //   await Camera.requestMicrophonePermissionsAsync();
+    // }
+    if (!micPerms.granted) {
+      alert("Please allow microphone permissions in settings");
+      await Camera.requestMicrophonePermissionsAsync();
+      return;
+    }
+    if (!cameraRef.current) {
+      alert("Camera is not ready");
+      return;
+    }
+    if (!recording) {
+      cameraRef.current?.recordAsync().then((response) => {
+        console.log("is response", response);
+        if (response && response.uri) {
+          setVideoUri(response.uri);
+        }
+      });
+      setRecording(true);
+    }
+    else {
+      // cameraRef.current?.stopRecording();
+
+      // setTimeout(() => {
+      //   setRecording(false);
+      //   console.log(videoUri);
+      // }, 2000);
+      await cameraRef.current?.stopRecording();
+      setRecording(false);
+      console.log(videoUri);
+
+    }
+  }
+
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
             <Text style={styles.text}>Flip Camera</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.recordButton} onPress={toggleRecording}>
+            <Text style={styles.text}>{recording ? "Stop recording" : "Start Recording"}</Text>
           </TouchableOpacity>
         </View>
       </CameraView>
     </View>
   );
 }
+
+//{/* What this should do if when it starts recording change to a stop icon */}
 
 const styles = StyleSheet.create({
   container: {
@@ -60,6 +124,11 @@ const styles = StyleSheet.create({
     margin: 64,
   },
   button: {
+    flex: 1,
+    alignSelf: "flex-end",
+    alignItems: "center",
+  },
+  recordButton: {
     flex: 1,
     alignSelf: "flex-end",
     alignItems: "center",
