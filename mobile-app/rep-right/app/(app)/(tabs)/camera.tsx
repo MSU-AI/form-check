@@ -13,7 +13,7 @@ export default function CameraViewScreen() {
   const [permissionMic, setPermissionMic] = useState<PermissionResponse | null>(null);
   const [videoUri, setVideoUri] = useState<string | null>(null);
 
-  if (!permission) {
+  if (!permission) { // Only reject if all joints <0.8
     // Camera permissions are still loading.
     return <View />;
   }
@@ -52,6 +52,7 @@ export default function CameraViewScreen() {
   async function toggleRecording(event: GestureResponderEvent): Promise<void> {
     // throw new Error("Function not implemented.");
     const micPerms = await Camera.getMicrophonePermissionsAsync();
+
     // if (!cameraPerms.granted) {
     //   await Camera.requestMicrophonePermissionsAsync();
     // }
@@ -87,9 +88,10 @@ export default function CameraViewScreen() {
     }
   }
 
+  // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+      <CameraView mode="video" style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
             <Text style={styles.text}>Flip Camera</Text>
