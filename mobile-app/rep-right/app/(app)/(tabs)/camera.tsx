@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { CameraView, CameraType, useCameraPermissions, Camera, CameraViewRef, PermissionResponse } from "expo-camera";
 import { useState } from "react";
 import { Button, GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { processVideoAsync } from "@/modules/pose-detection-video";
 
 export default function CameraViewScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -68,8 +69,13 @@ export default function CameraViewScreen() {
     if (!recording) {
       cameraRef.current?.recordAsync().then((response) => {
         console.log("is response", response);
+
         if (response && response.uri) {
           setVideoUri(response.uri);
+
+          processVideoAsync(response.uri).then((result) => {
+            console.log(result)
+          });
         }
       });
       setRecording(true);
@@ -89,6 +95,7 @@ export default function CameraViewScreen() {
   }
 
   // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
+  //TODO - implement logic for flipping the camera AKA what to do if you stop recording that way and change the buttons
   return (
     <View style={styles.container}>
       <CameraView mode="video" style={styles.camera} facing={facing} ref={cameraRef}>
