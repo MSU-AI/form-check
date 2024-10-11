@@ -56,6 +56,10 @@ dependencies {
   // If you want to use the accurate SDK
   implementation 'com.google.mlkit:pose-detection-accurate:18.0.0-beta5'
   implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.10" // Use your current Kotlin version
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0'
+
 
 
 

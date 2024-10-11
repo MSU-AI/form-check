@@ -5,11 +5,21 @@ import expo.modules.kotlin.modules.ModuleDefinition
 import java.lang.Exception
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
+import com.google.mlkit.vision.pose.Pose
+import com.google.mlkit.vision.pose.PoseLandmark
 import kotlin.reflect.full.memberProperties;
+import VideoFrameExtractor
+import PoseDetectorProcessor
+
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 
 class PoseDetectionVideoModule : Module() {
   // Each module class must implement the definition function. The definition consists of components
@@ -68,9 +78,12 @@ class PoseDetectionVideoModule : Module() {
 //    }
     AsyncFunction("processVideoAsync") { uri: String ->
       try {
-        val framesWithPositions = processVideoFrames(uri);
-        println(framesWithPositions)
-
+//        val framesWithPositions = processVideoFrames(uri);
+//        println(framesWithPositions)
+        //val framesWithPositions = processVideoFramesAsync(uri);
+        Log.d("PoseDetection", "Started")
+        val framesWithPositions = runBlocking { processVideoFramesAsync(uri) }
+        Log.d("PoseDetection","Video is $framesWithPositions")
         // Convert each frame to a map using reflection
 //        val framesList = Arguments.createArray();
 //        framesWithPositions.map { frame ->
@@ -142,6 +155,38 @@ class PoseDetectionVideoModule : Module() {
             FrameData(1, Position(100, 200), Position(150, 200)),
             FrameData(2, Position(102, 202), Position(152, 202))
     )
+  }
+
+  private suspend fun processVideoFramesAsync(videoUri: String): List<FrameData> {
+    return withContext(Dispatchers.IO) {
+//      val context = this@PoseDetectionVideoModule.context
+      val context = appContext.reactContext;
+      val uri = Uri.parse(videoUri)
+      val detectedFrames = mutableListOf<FrameData>()
+      val poseProcessor = PoseDetectorProcessor()
+
+      // Use VideoFrameExtractor to extract frames and process poses
+      VideoFrameExtractor.extractAndProcessFrames(context, uri) { frame ->
+        val pose:Pose? = runBlocking { poseProcessor.processFrame(frame) }
+        pose?.let {
+          // Extract landmark positions from pose and add to the list
+          val leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW)?.position
+          val rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)?.position
+          if (leftElbow != null && rightElbow != null) {
+            detectedFrames.add(
+                    FrameData(
+                            detectedFrames.size + 1,  // frame number
+                            Position(leftElbow.x.toInt(), leftElbow.y.toInt()),
+                            Position(rightElbow.x.toInt(), rightElbow.y.toInt())
+                    )
+            )
+          }
+        }
+      }
+
+      // Return the list of frames with detected poses
+      detectedFrames
+    }
   }
 
   // Data class representing frame data
