@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { CameraView, CameraType, useCameraPermissions, Camera, CameraViewRef, PermissionResponse } from "expo-camera";
 import { useState } from "react";
 import { Button, GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { processVideoAsync } from "@/modules/pose-detection-video";
+// import { processVideoAsync } from "@/modules/pose-detection-video";
 
 export default function CameraViewScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -73,9 +73,9 @@ export default function CameraViewScreen() {
         if (response && response.uri) {
           setVideoUri(response.uri);
 
-          processVideoAsync(response.uri).then((result) => {
-            console.log(result)
-          });
+          // processVideoAsync(response.uri).then((result) => {
+          //   console.log(result)
+          // });
         }
       });
       setRecording(true);
