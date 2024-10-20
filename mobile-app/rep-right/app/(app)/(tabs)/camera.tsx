@@ -38,8 +38,12 @@ export default function CameraViewScreen() {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>
-          We need your permission to show the camera
+          We need your permission to show the camera.
         </Text>
+        <Text style={styles.message}>
+          Note that if you denied permission once you will need to go to settings to enable it, and then restart the app.
+        </Text>
+
         {!permission.granted && <Button onPress={requestPermission} title="grant permission" />}
         {/* {!permissionMic!.granted && <Button onPress={async () => setPermissionMic(await Camera.requestMicrophonePermissionsAsync())} title="grant microphone permission" />} */}
       </View>
