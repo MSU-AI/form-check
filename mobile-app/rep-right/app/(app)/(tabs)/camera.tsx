@@ -50,9 +50,9 @@ export default function CameraViewScreen() {
     );
   }
 
-  function toggleCameraFacing() {
+  async function toggleCameraFacing() {
     if (recording) { // important logic since recording stops if camera is flipped
-      toggleRecording();
+      await toggleRecording();
     }
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
