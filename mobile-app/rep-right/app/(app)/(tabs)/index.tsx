@@ -9,6 +9,8 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Button } from "tamagui";
+import { getAuth, signOut } from "firebase/auth";
 
 export default function HomeScreen() {
   // useEffect(() => {
@@ -21,7 +23,7 @@ export default function HomeScreen() {
   //       console.log("Error: ", error);
   //     });
   // }, []);
-
+  const auth = getAuth();
   const [stuffInAwait, setStuffInAwait] = React.useState<any>(null);
   return (
     <ParallaxScrollView
@@ -35,6 +37,7 @@ export default function HomeScreen() {
     >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome</ThemedText>
+        <Button onPress={() => signOut(auth)}></Button>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
