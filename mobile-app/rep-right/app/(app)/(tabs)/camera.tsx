@@ -47,16 +47,14 @@ export default function CameraViewScreen() {
   }
 
   function toggleCameraFacing() {
+    if (recording) { // important logic since recording stops if camera is flipped
+      toggleRecording();
+    }
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
-  async function toggleRecording(event: GestureResponderEvent): Promise<void> {
-    // throw new Error("Function not implemented.");
+  async function toggleRecording(): Promise<void> {
     const micPerms = await Camera.getMicrophonePermissionsAsync();
-
-    // if (!cameraPerms.granted) {
-    //   await Camera.requestMicrophonePermissionsAsync();
-    // }
     if (!micPerms.granted) {
       alert("Please allow microphone permissions in settings");
       await Camera.requestMicrophonePermissionsAsync();
@@ -69,33 +67,19 @@ export default function CameraViewScreen() {
     if (!recording) {
       cameraRef.current?.recordAsync().then((response) => {
         console.log("is response", response);
-
         if (response && response.uri) {
           setVideoUri(response.uri);
-
-          // processVideoAsync(response.uri).then((result) => {
-          //   console.log(result)
-          // });
         }
       });
       setRecording(true);
     }
     else {
-      // cameraRef.current?.stopRecording();
-
-      // setTimeout(() => {
-      //   setRecording(false);
-      //   console.log(videoUri);
-      // }, 2000);
-      await cameraRef.current?.stopRecording();
+      cameraRef.current?.stopRecording();
       setRecording(false);
-      console.log(videoUri);
-
     }
   }
 
   // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
-  //TODO - implement logic for flipping the camera AKA what to do if you stop recording that way and change the buttons
   return (
     <View style={styles.container}>
       <CameraView mode="video" style={styles.camera} facing={facing} ref={cameraRef}>
