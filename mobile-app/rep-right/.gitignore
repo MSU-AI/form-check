@@ -11,6 +11,15 @@ npm-debug.*
 web-build/
 firebaseConfig.js
 
+# build paths (exclusing module)
+android
+!modules/pose-detection-video/android/
+ios/
+!modules/pose-detection-video/ios/
+
+# module excluded since not needed
+modules/pose-detection-video/
+
 # macOS
 .DS_Store
 
