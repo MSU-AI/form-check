@@ -12,7 +12,6 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
-        // title: 'Tabs',
       }}
     >
       <Tabs.Screen
@@ -45,7 +44,7 @@ export default function TabLayout() {
           title: "Camera",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
+              name={focused ? "camera" : "camera-outline"}
               color={color}
             />
           ),
