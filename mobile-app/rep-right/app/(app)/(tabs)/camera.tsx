@@ -5,15 +5,20 @@ import * as FileSystem from 'expo-file-system';
 import { Button, GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 // import { processVideoAsync } from "@/modules/pose-detection-video";
 
+import axios, { AxiosError } from "axios";
+
+import "../../../firebaseConfig";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
-const storage = getStorage();
+
 const auth = getAuth();
+const storage = getStorage();
 
 
 export default function CameraViewScreen() {
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [recording, setRecording] = useState(false);
@@ -71,13 +76,27 @@ export default function CameraViewScreen() {
       alert("Please log in to upload videos");
       return; // shouldn't even get here
     }
-    const storageRef = ref(storage, `videos/${auth.currentUser?.uid}/${new Date().getTime()}.mp4`);
+    const videoName = `${new Date().getTime()}.mp4`;
+    const storageRef = ref(storage, `videos/${auth.currentUser?.uid}/${videoName}`);
     try {
       const file = await fetch(uriOfFile);
       const blob = await file.blob();
       await uploadBytes(storageRef, blob).then((snapshot) => {
         console.log("Uploaded a blob or file!", snapshot);
+        console.log(apiUrl);
       });
+      // await fetch(`${apiUrl}/videos`, {})
+      console.log(`${apiUrl}/process_video`);
+      axios.get(`${apiUrl}/process_video`, {
+        headers: {
+          Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
+        }, params: { videoName: videoName }
+      }).then((response) => {
+        console.log(response);
+      }).catch((error: AxiosError) => {
+        console.log('Error: ', error.cause, error.code);
+      });
+
       // fetch(uriOfFile).then((response) => {
       //   response.blob().then((blob) => {
       //     uploadBytes(storageRef, blob).then((snapshot) => {

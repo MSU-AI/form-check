@@ -1,11 +1,26 @@
 from typing import Annotated, Optional
 from fastapi import Depends, FastAPI, Query, status, HTTPException
-# from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 import firebase_admin
+from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import auth, storage, credentials
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
+
 app = FastAPI()
+config = {
+    **dotenv_values(".env"), 
+}
+
+origins = [config["FRONTEND_URL"]] # temporarily allowing everything
+print(origins)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # load_dotenv()
 cred = credentials.Certificate('./service-account.json')
@@ -24,7 +39,7 @@ bucket = storage.bucket()
 # see: https://github.com/tiangolo/fastapi/pull/2120
 bearer_scheme = HTTPBearer(auto_error=False)
 
-
+# https://medium.com/@gabriel.cournelle/firebase-authentication-in-the-backend-with-fastapi-4ff3d5db55ca
 def get_firebase_user_from_token(
     token: Annotated[Optional[HTTPAuthorizationCredentials], Depends(bearer_scheme)],
 ) -> Optional[dict]:
