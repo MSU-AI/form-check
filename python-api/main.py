@@ -144,6 +144,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
 
 
     def process_video1(video_path, output_path):
+        # print("here")
         cap = cv2.VideoCapture(video_path)
 
         if not cap.isOpened():
@@ -210,8 +211,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
         #print(f"Processed video saved to {output_path}")
         return form_output_dict
 
-    video_path = 'barbell biceps curl_15 copy.mp4'  
-    output_path = 'output_video.mp4'   
+    output_path = 'output_video.mp4'  
     output_dict=process_video1(videoName, output_path)
     ######
     os.remove(videoName)
