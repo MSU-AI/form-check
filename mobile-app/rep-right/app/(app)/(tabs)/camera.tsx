@@ -87,12 +87,12 @@ export default function CameraViewScreen() {
       });
       // await fetch(`${apiUrl}/videos`, {})
       console.log(`${apiUrl}/process_video`);
-      axios.get(`${apiUrl}/process_video`, {
+      axios.get(`${apiUrl}/process_video`, { // TODO: need to test this, consider changing to POST, and deploy. 
         headers: {
           Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
         }, params: { videoName: videoName }
       }).then((response) => {
-        console.log(response);
+        console.log(response.data);
       }).catch((error: AxiosError) => {
         console.log('Error: ', error.cause, error.code);
       });
