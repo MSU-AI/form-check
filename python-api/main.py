@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI, Query, status, HTTPException
 import firebase_admin
 from firebase_admin import auth, storage, credentials
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import os
 app = FastAPI()
 
 # load_dotenv()
@@ -64,9 +65,25 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
                         videoName: Annotated[str,Query()]):
     # print(user['uid'])
 
-    blob = bucket.blob(f"{user['uid']}/{videoName}") #.upload_from_string("dummy")
-    print(blob[:100])
+    blob = bucket.blob(f"videos/{user['uid']}/{videoName}") #.upload_from_string("dummy")
+    print(blob.public_url)
+    print(blob.size)
     print(user['uid'])
-    #  blob.download_to_filename('local_video.mp4')
-    return {"Stuff": "Video processing started"}
+    try:
+        blob.download_to_filename(videoName)
+    except Exception as e:
+        try: # added in case the file was not found
+            os.remove(videoName)
+        except:
+            pass
+        return HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Video not found on the account for this user",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    print(os.path.getsize(videoName))
+    videoSize = os.path.getsize(videoName)
+    os.remove(videoName)
+    return {"Stuff": "Video processing started",
+            "videoSize": videoSize}
     # send bearer and name to firebase
