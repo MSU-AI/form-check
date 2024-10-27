@@ -1,8 +1,17 @@
 import React, { useEffect, useRef } from "react";
 import { CameraView, CameraType, useCameraPermissions, Camera, CameraViewRef, PermissionResponse } from "expo-camera";
 import { useState } from "react";
+import * as FileSystem from 'expo-file-system';
 import { Button, GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 // import { processVideoAsync } from "@/modules/pose-detection-video";
+
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getAuth } from "firebase/auth";
+
+// Get a reference to the storage service, which is used to create references in your storage bucket
+const storage = getStorage();
+const auth = getAuth();
+
 
 export default function CameraViewScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -57,6 +66,33 @@ export default function CameraViewScreen() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
+  async function uploadVideo(uriOfFile: string): Promise<void> {
+    if (!auth.currentUser) {
+      alert("Please log in to upload videos");
+      return; // shouldn't even get here
+    }
+    const storageRef = ref(storage, `videos/${auth.currentUser?.uid}/${new Date().getTime()}.mp4`);
+    try {
+      const file = await fetch(uriOfFile);
+      const blob = await file.blob();
+      await uploadBytes(storageRef, blob).then((snapshot) => {
+        console.log("Uploaded a blob or file!", snapshot);
+      });
+      // fetch(uriOfFile).then((response) => {
+      //   response.blob().then((blob) => {
+      //     uploadBytes(storageRef, blob).then((snapshot) => {
+      //       console.log('Uploaded a blob or file!');
+      //     }).catch((error) => {
+      //       console.log(error, 'Something went wrong!');
+      //     });
+      //   })
+      // })
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async function toggleRecording(): Promise<void> {
     const micPerms = await Camera.getMicrophonePermissionsAsync();
     if (!micPerms.granted) {
@@ -73,6 +109,9 @@ export default function CameraViewScreen() {
         console.log("is response", response);
         if (response && response.uri) {
           setVideoUri(response.uri);
+          // Create a storage reference from our storage service
+          uploadVideo(response.uri);
+
         }
       });
       setRecording(true);
