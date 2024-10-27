@@ -175,23 +175,19 @@ export default function CameraViewScreen() {
         style={styles.camera}
         facing={facing}
         ref={cameraRef}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Ionicons name="camera-reverse-outline" size={30} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.recordButton}
-            onPress={toggleRecording}
-          >
-            <Ionicons
-              name={recording ? "square" : "radio-button-off-outline"}
-              size={30}
-              color="red"
-            />
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+      />
+      <View style={styles.bottomBar}>
+        <TouchableOpacity onPress={toggleCameraFacing} style={styles.button}>
+          <Ionicons name="camera-reverse-outline" size={50} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={toggleRecording} style={styles.recordButton}>
+          <Ionicons
+            name={recording ? "square" : "radio-button-on-outline"}
+            size={50}
+            color={recording ? "red" : "white"}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -210,20 +206,20 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
-  buttonContainer: {
-    flex: 1,
+  bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingVertical: 20,
     flexDirection: "row",
-    backgroundColor: "transparent",
-    margin: 64,
+    justifyContent: "space-around",
+    alignItems: "center",
   },
   button: {
-    flex: 1,
-    alignSelf: "flex-end",
     alignItems: "center",
   },
   recordButton: {
-    flex: 1,
-    alignSelf: "flex-end",
     alignItems: "center",
   },
   text: {
