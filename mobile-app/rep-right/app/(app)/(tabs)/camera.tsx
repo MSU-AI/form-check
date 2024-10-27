@@ -1,8 +1,23 @@
 import React, { useEffect, useRef } from "react";
-import { CameraView, CameraType, useCameraPermissions, Camera, CameraViewRef, PermissionResponse } from "expo-camera";
+import {
+  CameraView,
+  CameraType,
+  useCameraPermissions,
+  Camera,
+  CameraViewRef,
+  PermissionResponse,
+} from "expo-camera";
 import { useState } from "react";
-import * as FileSystem from 'expo-file-system';
-import { Button, GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import * as FileSystem from "expo-file-system";
+import {
+  Button,
+  GestureResponderEvent,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 // import { processVideoAsync } from "@/modules/pose-detection-video";
 
 import axios, { AxiosError } from "axios";
@@ -16,7 +31,6 @@ import { getAuth } from "firebase/auth";
 const auth = getAuth();
 const storage = getStorage();
 
-
 export default function CameraViewScreen() {
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   const [facing, setFacing] = useState<CameraType>("back");
@@ -25,10 +39,13 @@ export default function CameraViewScreen() {
   // const [cameraRef, setCameraRef] = useState<CameraView | null>(null);
   const cameraRef = useRef<CameraView>(null);
   // const [permissionMic, requestMicPermission] = Camera.useMicrophonePermissions();
-  const [permissionMic, setPermissionMic] = useState<PermissionResponse | null>(null);
+  const [permissionMic, setPermissionMic] = useState<PermissionResponse | null>(
+    null
+  );
   const [videoUri, setVideoUri] = useState<string | null>(null);
 
-  if (!permission) { // Only reject if all joints <0.8
+  if (!permission) {
+    // Only reject if all joints <0.8
     // Camera permissions are still loading.
     return <View />;
   }
@@ -55,17 +72,21 @@ export default function CameraViewScreen() {
           We need your permission to show the camera.
         </Text>
         <Text style={styles.message}>
-          Note that if you denied permission once you will need to go to settings to enable it, and then restart the app.
+          Note that if you denied permission once you will need to go to
+          settings to enable it, and then restart the app.
         </Text>
 
-        {!permission.granted && <Button onPress={requestPermission} title="grant permission" />}
+        {!permission.granted && (
+          <Button onPress={requestPermission} title="grant permission" />
+        )}
         {/* {!permissionMic!.granted && <Button onPress={async () => setPermissionMic(await Camera.requestMicrophonePermissionsAsync())} title="grant microphone permission" />} */}
       </View>
     );
   }
 
   async function toggleCameraFacing() {
-    if (recording) { // important logic since recording stops if camera is flipped
+    if (recording) {
+      // important logic since recording stops if camera is flipped
       await toggleRecording();
     }
     setFacing((current) => (current === "back" ? "front" : "back"));
@@ -77,7 +98,10 @@ export default function CameraViewScreen() {
       return; // shouldn't even get here
     }
     const videoName = `${new Date().getTime()}.mp4`;
-    const storageRef = ref(storage, `videos/${auth.currentUser?.uid}/${videoName}`);
+    const storageRef = ref(
+      storage,
+      `videos/${auth.currentUser?.uid}/${videoName}`
+    );
     try {
       const file = await fetch(uriOfFile);
       const blob = await file.blob();
@@ -87,15 +111,20 @@ export default function CameraViewScreen() {
       });
       // await fetch(`${apiUrl}/videos`, {})
       console.log(`${apiUrl}/process_video`);
-      axios.get(`${apiUrl}/process_video`, { // TODO: need to test this, consider changing to POST, and deploy. 
-        headers: {
-          Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
-        }, params: { videoName: videoName }
-      }).then((response) => {
-        console.log(response.data);
-      }).catch((error: AxiosError) => {
-        console.log('Error: ', error.cause, error.code);
-      });
+      axios
+        .get(`${apiUrl}/process_video`, {
+          // TODO: need to test this, consider changing to POST, and deploy.
+          headers: {
+            Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
+          },
+          params: { videoName: videoName },
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error: AxiosError) => {
+          console.log("Error: ", error.cause, error.code);
+        });
 
       // fetch(uriOfFile).then((response) => {
       //   response.blob().then((blob) => {
@@ -106,7 +135,6 @@ export default function CameraViewScreen() {
       //     });
       //   })
       // })
-
     } catch (error) {
       console.log(error);
     }
@@ -130,12 +158,10 @@ export default function CameraViewScreen() {
           setVideoUri(response.uri);
           // Create a storage reference from our storage service
           uploadVideo(response.uri);
-
         }
       });
       setRecording(true);
-    }
-    else {
+    } else {
       cameraRef.current?.stopRecording();
       setRecording(false);
     }
@@ -144,13 +170,25 @@ export default function CameraViewScreen() {
   // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
   return (
     <View style={styles.container}>
-      <CameraView mode="video" style={styles.camera} facing={facing} ref={cameraRef}>
+      <CameraView
+        mode="video"
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef}
+      >
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
+            <Ionicons name="camera-reverse-outline" size={30} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.recordButton} onPress={toggleRecording}>
-            <Text style={styles.text}>{recording ? "Stop recording" : "Start Recording"}</Text>
+          <TouchableOpacity
+            style={styles.recordButton}
+            onPress={toggleRecording}
+          >
+            <Ionicons
+              name={recording ? "square" : "radio-button-off-outline"}
+              size={30}
+              color="red"
+            />
           </TouchableOpacity>
         </View>
       </CameraView>
