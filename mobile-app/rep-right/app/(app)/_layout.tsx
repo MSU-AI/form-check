@@ -34,7 +34,7 @@ export default function AppLayout() {
   return (
     <>
       {user ? (
-        <Stack>
+        <Stack initialRouteName="(tabs)">
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
       ) : (
