@@ -154,10 +154,6 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
         width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = cap.get(cv2.CAP_PROP_FPS)
-
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-    
         ret, frame = cap.read()
         if not ret:
             print("Error: Could not read the video.")
@@ -179,6 +175,11 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
         frame_number=0
         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  
         form_output_dict={}
+        counter=0
+        rep_form={}
+        bad_rep=False
+        curl_started=False
+        starting_time_of_rep=0
         while cap.isOpened():
             ret, frame = cap.read()
             if ret:
@@ -197,8 +198,28 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
                 if results.pose_landmarks:
                     landmarks = results.pose_landmarks.landmark
                     form_feedback = detect_bicep_curl_form(landmarks, initial_elbow_position)
-                    form_output_dict[timestamp]=form_feedback
-                
+                    if form_feedback=='Curl completed: Good form!' and curl_started:
+                        starting_time=list(rep_form.keys())[0]
+                        ending_time=list(rep_form.keys())[-1]
+                        form_output_dict[counter]={'starting':starting_time, 'ending':ending_time,'bad_rep':bad_rep}
+                        rep_form={}
+                        bad_rep=False
+                        curl_started=False
+                        counter+=1
+                    if curl_started and form_feedback=='Curl started: Good form!' and round(timestamp,2)!=round(starting_time_of_rep,2):
+                        starting_time=list(rep_form.keys())[0]
+                        ending_time=list(rep_form.keys())[-1]
+                        form_output_dict[counter]={'starting':starting_time, 'ending':ending_time,'bad_rep':True}
+                        rep_form={}
+                        bad_rep=False
+                        counter+=1
+                    if form_feedback=='Curl started: Good form!' and curl_started==False:
+                        curl_started=True
+                        starting_time_of_rep=timestamp
+                    if form_feedback!='Curl completed: Good form!':
+                        rep_form[timestamp]=form_feedback
+                    if form_feedback=='Bad_form: Elbow moved too much!':
+                        bad_rep=True
                     #cv2.putText(image, form_feedback, (10, 30), 
                                 #cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
                 #out.write(image)
@@ -209,12 +230,16 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
         cap.release()
         #out.release()
         #print(f"Processed video saved to {output_path}")
-        return form_output_dict
-
-    #output_path = 'output_video.mp4'  
-    output_dict=process_video1(videoName)
-    ######
+        new_output_dict={}
+        counter=1
+        if len(form_output_dict)>0:
+            for key,value in form_output_dict.items():
+                if form_output_dict[key]['starting']!=form_output_dict[key]['ending']:
+                    new_output_dict[counter]={'starting':form_output_dict[key]['starting'],'ending':form_output_dict[key]['ending'],'bad_rep':form_output_dict[key]['bad_rep']}
+                    counter+=1    
+        print(new_output_dict)       
+        return new_output_dict
+    output1=process_video1(videoName)
     os.remove(videoName)
-
-    return output_dict
+    return output1
     # send bearer and name to firebase
