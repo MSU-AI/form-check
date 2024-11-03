@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Image, StyleSheet, Platform } from "react-native";
 // import * as PoseDetectionVideo from 'pose-detection-video';
 // import * as PoseDetectionVideo from '../../../pose-detection-module/src/PoseDetectionVideoModule';
-
 // import { hello, processVideoAsync } from '../../../modules/pose-detection-video';
 
 import { HelloWave } from "@/components/HelloWave";
