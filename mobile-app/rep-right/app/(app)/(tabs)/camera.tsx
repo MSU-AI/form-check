@@ -13,18 +13,17 @@ import * as FileSystem from "expo-file-system";
 import {
   Button,
   GestureResponderEvent,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-// import { processVideoAsync } from "@/modules/pose-detection-video";
-
 import axios, { AxiosError } from "axios";
-
 import "../../../firebaseConfig";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 
@@ -169,13 +168,16 @@ export default function CameraViewScreen() {
 
   // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <CameraView
         mode="video"
         style={styles.camera}
         facing={facing}
         ref={cameraRef}
       />
+      <Pressable onPress={() => signOut(auth)} style={styles.signOutButton}>
+        <Text style={styles.signOutButtonText}>Log Out</Text>
+      </Pressable>
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={toggleCameraFacing} style={styles.button}>
           <Ionicons name="camera-reverse-outline" size={50} color="white" />
@@ -188,7 +190,7 @@ export default function CameraViewScreen() {
           />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -226,5 +228,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
+  },
+  signOutButton: {
+    position: "absolute",
+    top: 200,
+    right: 0,
+  },
+  signOutButtonText: {
+    color: "white",
+    fontSize: 20,
+    top: 20,
+    right: 0,
   },
 });

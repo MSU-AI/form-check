@@ -9,8 +9,8 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { TamaguiProvider, createTamagui } from '@tamagui/core'
-import { config } from '@tamagui/config/v3'
+import { TamaguiProvider, createTamagui } from "@tamagui/core";
+import { config } from "@tamagui/config/v3";
 
 const appConfig = createTamagui(config);
 
@@ -44,7 +44,7 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={appConfig}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={DarkTheme}>
         <Stack initialRouteName="signin">
           <Stack.Screen name="signin" options={{ headerShown: false }} />
           <Stack.Screen name="signup" options={{ headerShown: false }} />

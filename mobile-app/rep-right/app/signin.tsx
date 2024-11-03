@@ -20,7 +20,7 @@ export default function SignInScreen() {
         password
       );
       const user = userCredential.user;
-      router.replace("/(app)/(tabs)/explore");
+      router.replace("/(app)/(tabs)/camera");
     } catch (error) {
       setLoading(false);
       if (error instanceof Error) {
