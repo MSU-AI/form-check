@@ -216,7 +216,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
                     if form_feedback=='Curl started: Good form!' and curl_started==False:
                         curl_started=True
                         starting_time_of_rep=timestamp
-                    if form_feedback!='Curl completed: Good form!':
+                    if form_feedback!='Curl completed: Good form!' and curl_started:
                         rep_form[timestamp]=form_feedback
                     if form_feedback=='Bad_form: Elbow moved too much!':
                         bad_rep=True
