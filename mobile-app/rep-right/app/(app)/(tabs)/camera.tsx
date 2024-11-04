@@ -9,7 +9,6 @@ import {
 } from "expo-camera";
 import { useState } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import * as FileSystem from "expo-file-system";
 import {
   Button,
   GestureResponderEvent,
