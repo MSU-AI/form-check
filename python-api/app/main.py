@@ -12,7 +12,7 @@ import math
 
 app = FastAPI()
 config = {
-    **dotenv_values(".env"), 
+    **dotenv_values("./app/.env"), 
 }
 
 origins = [config["FRONTEND_URL"]] # temporarily allowing everything
@@ -26,7 +26,7 @@ app.add_middleware(
 )
 
 # load_dotenv()
-cred = credentials.Certificate('./service-account.json')
+cred = credentials.Certificate('./app/service-account.json')
 default_app = firebase_admin.initialize_app(cred, {
         'storageBucket': 'form-checker-7535c.appspot.com'
 })
