@@ -11,11 +11,12 @@ import mediapipe as mp
 import math
 
 app = FastAPI()
-config = {
-    **dotenv_values("./app/.env"), 
-}
+# config = {
+#     **dotenv_values(".env"), 
+# }
 
-origins = [config["FRONTEND_URL"]] # temporarily allowing everything
+# origins = [config["FRONTEND_URL"]] # temporarily allowing everything
+origins = ["*"]
 print(origins)
 app.add_middleware(
     CORSMiddleware,
@@ -26,7 +27,7 @@ app.add_middleware(
 )
 
 # load_dotenv()
-cred = credentials.Certificate('./app/service-account.json')
+cred = credentials.Certificate("/app/service-account.json")
 default_app = firebase_admin.initialize_app(cred, {
         'storageBucket': 'form-checker-7535c.appspot.com'
 })
