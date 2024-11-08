@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   FlatList,
@@ -37,8 +37,8 @@ export type myItemProps = {
 //   },
 // ];
 
-const Item: React.FC<myItemProps & { index: number; onPress: () => void }> = ({
-  index,
+// myItemProps & { index: number; onPress: () => void }
+const Item: React.FC<myItemProps & { onPress: () => void }> = ({
   starting,
   ending,
   bad_rep,
@@ -73,13 +73,18 @@ const OutputScreen: React.FC = () => {
   };
 
   const params = useLocalSearchParams();
+  const data = JSON.parse(params.data as string) as { [key: number]: myItemProps };
+  const dataAsArr = Object.values(data);
+
+  // useEffect(() => { console.log(params); })
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <FlatList
-          data={params.data as myItemProps[]}
-          renderItem={({ item, index }) => <Item></Item>}
-          keyExtractor={(item) => item.starting}
+          data={dataAsArr}
+          renderItem={({ item }) => <Item item={{ ...item, onPress: () => { } }}></Item>}
+          keyExtractor={(item, index) => item.starting.toString()}
         />
       </SafeAreaView>
     </SafeAreaProvider>
