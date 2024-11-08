@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useRouter } from "expo-router";
 import {
   CameraView,
   CameraType,
@@ -23,6 +24,7 @@ import "../../../firebaseConfig";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth, signOut } from "firebase/auth";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { myItemProps } from "./rep-info/output";
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 
@@ -41,6 +43,15 @@ export default function CameraViewScreen() {
     null
   );
   const [videoUri, setVideoUri] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  const handleRedirect = (data: any) => {
+    router.replace({
+      pathname: "/(app)/(tabs)/rep-info/output",
+      params: { data: data } satisfies { data: myItemProps },
+    });
+  };
 
   if (!permission) {
     // Only reject if all joints <0.8
@@ -73,10 +84,10 @@ export default function CameraViewScreen() {
           Note that if you denied permission once you will need to go to
           settings to enable it, and then restart the app.
         </Text>
-
         {!permission.granted && (
           <Button onPress={requestPermission} title="grant permission" />
         )}
+        {/* Example button */}
         {/* {!permissionMic!.granted && <Button onPress={async () => setPermissionMic(await Camera.requestMicrophonePermissionsAsync())} title="grant microphone permission" />} */}
       </View>
     );
@@ -119,6 +130,7 @@ export default function CameraViewScreen() {
         })
         .then((response) => {
           console.log(response.data);
+          handleRedirect(response.data);
         })
         .catch((error: AxiosError) => {
           console.log("Error: ", error.cause, error.code);
@@ -167,7 +179,7 @@ export default function CameraViewScreen() {
 
   // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <CameraView
         mode="video"
         style={styles.camera}
@@ -177,6 +189,7 @@ export default function CameraViewScreen() {
       <Pressable onPress={() => signOut(auth)} style={styles.signOutButton}>
         <Text style={styles.signOutButtonText}>Log Out</Text>
       </Pressable>
+
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={toggleCameraFacing} style={styles.button}>
           <Ionicons name="camera-reverse-outline" size={50} color="white" />
@@ -230,13 +243,18 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     position: "absolute",
-    top: 200,
-    right: 0,
+    top: 75,
+    right: 10,
+    backgroundColor: "black",
+    padding: 12,
+    // margin: 10,
+    borderRadius: 10,
   },
   signOutButtonText: {
     color: "white",
+    fontWeight: "bold",
     fontSize: 20,
-    top: 20,
+    top: 0,
     right: 0,
   },
 });
