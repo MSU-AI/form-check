@@ -11,7 +11,7 @@ import "../../../firebaseConfig";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-import { doc, getFirestore, setDoc } from "firebase/firestore"; 
+// import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 
@@ -97,11 +97,11 @@ export default function CameraViewScreen() {
         }, params: { videoName: videoName }
       }).then((response) => {
         console.log(response.data);
-        console.log(auth.currentUser?auth.currentUser.uid:"UID",videoName.slice(0, -4));
-        setDoc(doc(db, "data" , auth.currentUser?auth.currentUser.uid:"UID", videoName.slice(0, -4)), {
-          field1: "value1",
-          field2: "value2"
-        });
+        // console.log(auth.currentUser ? auth.currentUser.uid : "UID", videoName.slice(0, -4));
+        // setDoc(doc(db, "data", auth.currentUser ? `${auth.currentUser.uid}` : "UID", videoName.slice(0, -4)), {
+        //   field1: "value1",
+        //   field2: "value2"
+        // });
       }).catch((error: AxiosError) => {
         console.log('Error: ', error.cause, error.code);
       });
