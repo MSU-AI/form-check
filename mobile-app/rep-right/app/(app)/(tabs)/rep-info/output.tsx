@@ -11,9 +11,18 @@ import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 
 export type myItemProps = {
+  index?: number;
   starting: number;
   ending: number;
   bad_rep: boolean;
+};
+
+const convertToArray = (itemList: { [key: number]: myItemProps }) => {
+  const out: myItemProps[] = [];
+  for (let key of Object.keys(itemList)) {
+    out.push({ ...itemList[parseInt(key)], index: parseInt(key) });
+  }
+  return out;
 };
 
 // const DATA: ItemProps[] = [
@@ -38,7 +47,8 @@ export type myItemProps = {
 // ];
 
 // myItemProps & { index: number; onPress: () => void }
-const Item: React.FC<myItemProps & { onPress: () => void }> = ({
+const Item: React.FC<myItemProps & { onPress: (item: any) => void }> = ({
+  index,
   starting,
   ending,
   bad_rep,
@@ -49,7 +59,7 @@ const Item: React.FC<myItemProps & { onPress: () => void }> = ({
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={[styles.item, { backgroundColor }]}>
-        <Text style={styles.title}>{`Rep ${index + 1}`}</Text>
+        <Text style={styles.title}>{`Rep ${index!}`}</Text>
         <Text style={styles.time}>
           {Math.round((ending - starting) * 100) / 100}
         </Text>
@@ -67,6 +77,7 @@ const OutputScreen: React.FC = () => {
       params: {
         starting: item.starting,
         ending: item.ending,
+        time: Math.round((item.ending - item.starting) * 100) / 100,
         bad_rep: item.bad_rep,
       },
     });
@@ -74,7 +85,7 @@ const OutputScreen: React.FC = () => {
 
   const params = useLocalSearchParams();
   const data = JSON.parse(params.data as string) as { [key: number]: myItemProps };
-  const dataAsArr = Object.values(data);
+  const dataAsArr = convertToArray(data);
 
   // useEffect(() => { console.log(params); })
 
@@ -83,8 +94,8 @@ const OutputScreen: React.FC = () => {
       <SafeAreaView style={styles.container}>
         <FlatList
           data={dataAsArr}
-          renderItem={({ item }) => <Item item={{ ...item, onPress: () => { } }}></Item>}
-          keyExtractor={(item, index) => item.starting.toString()}
+          renderItem={({ item }) => <Item {...item} onPress={() => { handlePress(item) }} />}
+          keyExtractor={(item, index) => item.index!.toString()}
         />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -94,6 +105,7 @@ const OutputScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   item: {
     padding: 20,
