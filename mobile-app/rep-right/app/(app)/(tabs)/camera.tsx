@@ -47,9 +47,11 @@ export default function CameraViewScreen() {
   const router = useRouter();
 
   const handleRedirect = (data: any) => {
-    router.replace({
+    console.log("Redirecting to output page with data: ", data);
+    // router.replace
+    router.push({
       pathname: "/(app)/(tabs)/rep-info/output",
-      params: { data: data } satisfies { data: myItemProps },
+      params: { data: JSON.stringify(data) } // { data: data } satisfies { data: myItemProps },
     });
   };
 
@@ -126,14 +128,19 @@ export default function CameraViewScreen() {
           headers: {
             Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
           },
-          params: { videoName: videoName },
+          params: { videoName: videoName }, //'barbell_biceps_curl_15.mp4'
         })
         .then((response) => {
           console.log(response.data);
+          if (Object.keys(response.data).length === 0) {
+            alert("No reps found");
+            return;
+          }
           handleRedirect(response.data);
         })
         .catch((error: AxiosError) => {
           console.log("Error: ", error.cause, error.code);
+          alert("An error occurred contacting the server, please try again later");
         });
 
       // fetch(uriOfFile).then((response) => {
@@ -147,6 +154,7 @@ export default function CameraViewScreen() {
       // })
     } catch (error) {
       console.log(error);
+      alert('An error occured in the uploadVideo function');
     }
   }
 
