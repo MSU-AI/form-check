@@ -11,7 +11,7 @@ import "../../../firebaseConfig";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-// import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 
@@ -91,20 +91,25 @@ export default function CameraViewScreen() {
       });
       // await fetch(`${apiUrl}/videos`, {})
       console.log(`${apiUrl}/process_video`);
-      axios.get(`${apiUrl}/process_video`, { // TODO: need to test this, consider changing to POST, and deploy. 
-        headers: {
-          Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
-        }, params: { videoName: videoName }
-      }).then((response) => {
-        console.log(response.data);
-        // console.log(auth.currentUser ? auth.currentUser.uid : "UID", videoName.slice(0, -4));
-        // setDoc(doc(db, "data", auth.currentUser ? `${auth.currentUser.uid}` : "UID", videoName.slice(0, -4)), {
-        //   field1: "value1",
-        //   field2: "value2"
-        // });
-      }).catch((error: AxiosError) => {
-        console.log('Error: ', error.cause, error.code);
+
+      setDoc(doc(db, "data", auth.currentUser ? `${auth.currentUser.uid}` : "UID", videoName.slice(0, -4)), {
+        field1: "value1",
+        field2: "value2"
       });
+      // axios.get(`${apiUrl}/process_video`, { // TODO: need to test this, consider changing to POST, and deploy. 
+      //   headers: {
+      //     Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
+      //   }, params: { videoName: videoName }
+      // }).then((response) => {
+      //   console.log(response.data);
+      //   // console.log(auth.currentUser ? auth.currentUser.uid : "UID", videoName.slice(0, -4));
+      //   // setDoc(doc(db, "data", auth.currentUser ? `${auth.currentUser.uid}` : "UID", videoName.slice(0, -4)), {
+      //   //   field1: "value1",
+      //   //   field2: "value2"
+      //   // });
+      // }).catch((error: AxiosError) => {
+      //   console.log('Error: ', error.cause, error.code);
+      // });
 
       // fetch(uriOfFile).then((response) => {
       //   response.blob().then((blob) => {
