@@ -27,7 +27,8 @@ app.add_middleware(
 )
 
 # load_dotenv()
-cred = credentials.Certificate("/app/service-account.json")
+# cred = credentials.Certificate("/app/service-account.json")
+cred = credentials.Certificate("./service-account.json")
 default_app = firebase_admin.initialize_app(cred, {
         'storageBucket': 'form-checker-7535c.appspot.com'
 })
@@ -247,4 +248,8 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
         if full_range_of_motion==False:
             new_output_dict[counter]={'starting':0.0,'ending':timestamp,'bad_rep':True}
         return new_output_dict
+
+    output1=process_video1(videoName)
+    os.remove(videoName)
+    return output1
     # send bearer and name to firebase
