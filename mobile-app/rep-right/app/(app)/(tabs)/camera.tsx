@@ -92,10 +92,19 @@ export default function CameraViewScreen() {
       // await fetch(`${apiUrl}/videos`, {})
       console.log(`${apiUrl}/process_video`);
 
-      setDoc(doc(db, "data", auth.currentUser ? `${auth.currentUser.uid}` : "UID", videoName.slice(0, -4)), {
+
+      // Get UID or fallback to default "UID"
+      const uid = auth.currentUser ? auth.currentUser.uid : "UID";
+
+      // Set document in Firestore
+      setDoc(doc(db, "data", uid, "userdata", videoName), {
+        videoName: videoName.slice(0, -4),  // Store trimmed video name as a field
         field1: "value1",
         field2: "value2"
+      }).catch((error : any) => {
+        console.log(error);
       });
+
       // axios.get(`${apiUrl}/process_video`, { // TODO: need to test this, consider changing to POST, and deploy. 
       //   headers: {
       //     Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
