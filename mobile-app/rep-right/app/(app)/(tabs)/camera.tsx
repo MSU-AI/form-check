@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import Loader from "../../../components/Loader";
 import { useRouter } from "expo-router";
 import {
   CameraView,
@@ -19,7 +20,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, spread } from "axios";
 import "../../../firebaseConfig";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth, signOut } from "firebase/auth";
@@ -36,6 +37,7 @@ export default function CameraViewScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [recording, setRecording] = useState(false);
+  const [loading, setLoading] = useState(false);
   // const [cameraRef, setCameraRef] = useState<CameraView | null>(null);
   const cameraRef = useRef<CameraView>(null);
   // const [permissionMic, requestMicPermission] = Camera.useMicrophonePermissions();
@@ -51,7 +53,7 @@ export default function CameraViewScreen() {
     // router.replace
     router.push({
       pathname: "/(app)/(tabs)/rep-info/output",
-      params: { data: JSON.stringify(data) } // { data: data } satisfies { data: myItemProps },
+      params: { data: JSON.stringify(data) }, // { data: data } satisfies { data: myItemProps },
     });
   };
 
@@ -131,6 +133,7 @@ export default function CameraViewScreen() {
           params: { videoName: videoName }, //'barbell_biceps_curl_15.mp4'
         })
         .then((response) => {
+          setLoading(false);
           console.log(response.data);
           if (Object.keys(response.data).length === 0) {
             alert("No reps found");
@@ -140,7 +143,9 @@ export default function CameraViewScreen() {
         })
         .catch((error: AxiosError) => {
           console.log("Error: ", error.cause, error.code);
-          alert("An error occurred contacting the server, please try again later");
+          alert(
+            "An error occurred contacting the server, please try again later"
+          );
         });
 
       // fetch(uriOfFile).then((response) => {
@@ -154,7 +159,7 @@ export default function CameraViewScreen() {
       // })
     } catch (error) {
       console.log(error);
-      alert('An error occured in the uploadVideo function');
+      alert("An error occured in the uploadVideo function");
     }
   }
 
@@ -171,6 +176,7 @@ export default function CameraViewScreen() {
     }
     if (!recording) {
       cameraRef.current?.recordAsync().then((response) => {
+        setLoading(true);
         console.log("is response", response);
         if (response && response.uri) {
           setVideoUri(response.uri);
@@ -187,36 +193,45 @@ export default function CameraViewScreen() {
 
   // note - to make this work the container mode needs to be video https://stackoverflow.com/a/78468971 https://stackoverflow.com/questions/78468927/expo-51-camera-recording-was-stopped-before-any-data-could-be-produced/78468971#78468971
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <CameraView
-        mode="video"
-        style={styles.camera}
-        facing={facing}
-        ref={cameraRef}
-      />
-      <Pressable onPress={() => signOut(auth)} style={styles.signOutButton}>
-        <Text style={styles.signOutButtonText}>Log Out</Text>
-      </Pressable>
+    <View style={{ ...styles.blackBackground, ...styles.container }}>
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+        <CameraView
+          mode="video"
+          style={styles.camera}
+          facing={facing}
+          ref={cameraRef}
+        />
+        <Pressable onPress={() => signOut(auth)} style={styles.signOutButton}>
+          <Text style={styles.signOutButtonText}>Log Out</Text>
+        </Pressable>
 
-      <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={toggleCameraFacing} style={styles.button}>
-          <Ionicons name="camera-reverse-outline" size={50} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={toggleRecording} style={styles.recordButton}>
-          <Ionicons
-            name={recording ? "square" : "radio-button-on-outline"}
-            size={50}
-            color={recording ? "red" : "white"}
-          />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+        <View style={styles.bottomBar}>
+          <TouchableOpacity onPress={toggleCameraFacing} style={styles.button}>
+            <Ionicons name="camera-reverse-outline" size={50} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={toggleRecording}
+            style={styles.recordButton}
+          >
+            <Ionicons
+              name={recording ? "square" : "radio-button-on-outline"}
+              size={50}
+              color={recording ? "red" : "white"}
+            />
+          </TouchableOpacity>
+        </View>
+        <Loader visible={loading} />
+      </SafeAreaView>
+    </View>
   );
 }
 
 //{/* What this should do if when it starts recording change to a stop icon */}
 
 const styles = StyleSheet.create({
+  blackBackground: {
+    backgroundColor: "black",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
