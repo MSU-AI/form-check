@@ -12,6 +12,8 @@ import "react-native-reanimated";
 import { TamaguiProvider, createTamagui } from "@tamagui/core";
 import { config } from "@tamagui/config/v3";
 
+import { Provider as JotaiProvider } from 'jotai';
+
 const appConfig = createTamagui(config);
 
 // TypeScript types across all Tamagui APIs
@@ -43,16 +45,18 @@ export default function RootLayout() {
   }
 
   return (
-    <TamaguiProvider config={appConfig}>
-      <ThemeProvider value={DarkTheme}>
-        <Stack initialRouteName="signin">
-          <Stack.Screen name="signin" options={{ headerShown: false }} />
-          <Stack.Screen name="signup" options={{ headerShown: false }} />
-          {/* <Stack.Screen name="forgot-password" options={{ headerShown: false }} /> TODO */}
-          <Stack.Screen name="(app)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </ThemeProvider>
-    </TamaguiProvider>
+    <JotaiProvider>
+      <TamaguiProvider config={appConfig}>
+        <ThemeProvider value={DarkTheme}>
+          <Stack initialRouteName="signin">
+            <Stack.Screen name="signin" options={{ headerShown: false }} />
+            <Stack.Screen name="signup" options={{ headerShown: false }} />
+            {/* <Stack.Screen name="forgot-password" options={{ headerShown: false }} /> TODO */}
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </ThemeProvider>
+      </TamaguiProvider>
+    </JotaiProvider>
   );
 }

@@ -26,6 +26,9 @@ import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { getAuth, signOut } from "firebase/auth";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { myItemProps } from "./rep-info/output";
+import { useAtom } from 'jotai';
+import * as jotaistates from '../../../state/jotaistates';
+
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
 
@@ -44,7 +47,9 @@ export default function CameraViewScreen() {
   const [permissionMic, setPermissionMic] = useState<PermissionResponse | null>(
     null
   );
-  const [videoUri, setVideoUri] = useState<string | null>(null);
+  // const [videoUri, setVideoUri] = useState<string | null>(null);
+
+  const [videoUri, setVideoUri] = useAtom(jotaistates.videoLocationAtom);
 
   const router = useRouter();
 
@@ -130,7 +135,7 @@ export default function CameraViewScreen() {
           headers: {
             Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
           },
-          params: { videoName: videoName }, //'barbell_biceps_curl_15.mp4'
+          params: { videoName: videoName }, // // videoName 'barbell_biceps_curl_15.mp4'
         })
         .then((response) => {
           setLoading(false);
