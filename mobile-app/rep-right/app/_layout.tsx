@@ -12,7 +12,7 @@ import "react-native-reanimated";
 import { TamaguiProvider, createTamagui } from "@tamagui/core";
 import { config } from "@tamagui/config/v3";
 
-import { Provider as JotaiProvider } from 'jotai';
+import { Provider as JotaiProvider } from "jotai";
 
 const appConfig = createTamagui(config);
 

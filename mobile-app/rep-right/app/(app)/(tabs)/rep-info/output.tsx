@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
+import * as Animatable from "react-native-animatable";
 import {
   View,
   FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -16,6 +18,9 @@ export type myItemProps = {
   ending: number;
   bad_rep: boolean;
 };
+
+const { height } = Dimensions.get("window"); // Get screen height
+const CARD_HEIGHT = height / 4; // Divide screen height into 4 equal parts
 
 const convertToArray = (itemList: { [key: number]: myItemProps }) => {
   const out: myItemProps[] = [];
@@ -47,24 +52,22 @@ const convertToArray = (itemList: { [key: number]: myItemProps }) => {
 // ];
 
 // myItemProps & { index: number; onPress: () => void }
-const Item: React.FC<myItemProps & { onPress: (item: any) => void }> = ({
-  index,
-  starting,
-  ending,
-  bad_rep,
-  onPress,
-}) => {
+const Item: React.FC<
+  myItemProps & { onPress: (item: any) => void; animation: string }
+> = ({ index, starting, ending, bad_rep, onPress, animation }) => {
   const backgroundColor = bad_rep ? "#ffcccc" : "#ccffcc";
 
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={[styles.item, { backgroundColor }]}>
-        <Text style={styles.title}>{`Rep ${index!}`}</Text>
-        <Text style={styles.time}>
-          {Math.round((ending - starting) * 100) / 100}
-        </Text>
-      </View>
-    </TouchableOpacity>
+    <Animatable.View animation={animation} duration={1000}>
+      <TouchableOpacity onPress={onPress}>
+        <View style={[styles.item, { backgroundColor }]}>
+          <Text style={styles.title}>{`Rep ${index! + 1}`}</Text>
+          <Text style={styles.time}>
+            {Math.round((ending - starting) * 100) / 100}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Animatable.View>
   );
 };
 
@@ -84,7 +87,23 @@ const OutputScreen: React.FC = () => {
   };
 
   const params = useLocalSearchParams();
-  const data = JSON.parse(params.data as string) as { [key: number]: myItemProps };
+
+  //PUT THIS BACK FOR PRODUCTION
+  // const data = JSON.parse(params.data as string) as {
+  //   [key: number]: myItemProps;
+  // };
+  //PUT THIS BACK FOR PRODUCTION
+
+  // FOR TESTING ONLY
+  const defaultData = {
+    0: { starting: 0.0, ending: 0.03, bad_rep: false },
+    1: { starting: 0.03, ending: 0.1, bad_rep: true },
+    2: { starting: 0.1, ending: 0.47, bad_rep: false },
+    3: { starting: 0.47, ending: 0.67, bad_rep: false },
+  };
+  const data = params.data ? JSON.parse(params.data as string) : defaultData;
+  //FOR TESTING ONLY
+
   const dataAsArr = convertToArray(data);
 
   // useEffect(() => { console.log(params); })
@@ -94,7 +113,15 @@ const OutputScreen: React.FC = () => {
       <SafeAreaView style={styles.container}>
         <FlatList
           data={dataAsArr}
-          renderItem={({ item }) => <Item {...item} onPress={() => { handlePress(item) }} />}
+          renderItem={({ item, index }) => (
+            <Item
+              {...item}
+              animation={index % 2 === 0 ? "slideInLeft" : "slideInRight"}
+              onPress={() => {
+                handlePress(item);
+              }}
+            />
+          )}
           keyExtractor={(item, index) => item.index!.toString()}
         />
       </SafeAreaView>
@@ -105,15 +132,22 @@ const OutputScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#302736",
   },
   item: {
+    height: CARD_HEIGHT,
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 8,
+    marginVertical: 24,
+    marginHorizontal: 29,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // Android only
     justifyContent: "center",
     alignItems: "center",
+    transform: [{ scale: 1 }],
   },
   title: {
     fontSize: 24,
