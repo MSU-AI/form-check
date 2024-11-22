@@ -39,6 +39,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.2",
+    "react-native-animatable": "^1.4.0",
     "react-native-animated-spinkit": "^1.5.2",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-keyboard-controller": "^1.14.4",
