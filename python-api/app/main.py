@@ -194,7 +194,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
     video_reps_right = {}
 
     frame_number = 0
-    cap = cv2.VideoCapture(videoName)
+    cap = cv2.VideoCapture(VIDEO_DEMO_PATH)
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     with mp_pose.Pose(min_detection_confidence=0.8, min_tracking_confidence=0.8) as pose:
@@ -203,21 +203,31 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
             if not ret:
                 break
 
-        cap.release()
-        #out.release()
-        #print(f"Processed video saved to {output_path}")
-        new_output_dict={}
-        counter=1
-        if len(form_output_dict)>0:
-            for key,value in form_output_dict.items():
-                if form_output_dict[key]['starting']!=form_output_dict[key]['ending']:
-                    new_output_dict[counter]={'starting':form_output_dict[key]['starting'],'ending':form_output_dict[key]['ending'],'bad_rep':form_output_dict[key]['bad_rep']}
-                    counter+=1
-        if full_range_of_motion==False:
-            new_output_dict[counter]={'starting':0.0,'ending':timestamp,'bad_rep':True}
-        return new_output_dict
+            image = rescale_frame(image, 50)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+            results = pose.process(image)
+            timestamp = frame_number / fps
 
-    output1=process_video1(videoName)
-    os.remove(videoName)
-    return output1
+            if results.pose_landmarks:
+                landmarks = results.pose_landmarks.landmark
+
+                # Analyze left arm
+                left_bicep_curl_angle, _ = left_arm_analysis.analyze_pose(landmarks, image, timestamp)
+
+                # Analyze right arm
+                right_bicep_curl_angle, _ = right_arm_analysis.analyze_pose(landmarks, image, timestamp)
+
+                # Update global dictionaries
+                video_reps_left = left_arm_analysis.rep
+                video_reps_right = right_arm_analysis.rep
+
+            frame_number += 1
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    return {"left": video_reps_left, "right": video_reps_right}
     # send bearer and name to firebase
