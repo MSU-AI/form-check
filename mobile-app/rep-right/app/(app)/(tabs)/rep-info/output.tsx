@@ -61,7 +61,7 @@ const Item: React.FC<
     <Animatable.View animation={animation} duration={1000}>
       <TouchableOpacity onPress={onPress}>
         <View style={[styles.item, { backgroundColor }]}>
-          <Text style={styles.title}>{`Rep ${index! + 1}`}</Text>
+          <Text style={styles.title}>{`Rep ${index!}`}</Text>
           <Text style={styles.time}>
             {Math.round((ending - starting) * 100) / 100}
           </Text>
@@ -89,19 +89,19 @@ const OutputScreen: React.FC = () => {
   const params = useLocalSearchParams();
 
   //PUT THIS BACK FOR PRODUCTION
-  // const data = JSON.parse(params.data as string) as {
-  //   [key: number]: myItemProps;
-  // };
+  const data = JSON.parse(params.data as string) as {
+    [key: number]: myItemProps;
+  };
   //PUT THIS BACK FOR PRODUCTION
 
   // FOR TESTING ONLY
-  const defaultData = {
-    0: { starting: 0.0, ending: 0.03, bad_rep: false },
-    1: { starting: 0.03, ending: 0.1, bad_rep: true },
-    2: { starting: 0.1, ending: 0.47, bad_rep: false },
-    3: { starting: 0.47, ending: 0.67, bad_rep: false },
-  };
-  const data = params.data ? JSON.parse(params.data as string) : defaultData;
+  // const defaultData = {
+  //   0: { starting: 0.0, ending: 0.03, bad_rep: false },
+  //   1: { starting: 0.03, ending: 0.1, bad_rep: true },
+  //   2: { starting: 0.1, ending: 0.47, bad_rep: false },
+  //   3: { starting: 0.47, ending: 0.67, bad_rep: false },
+  // };
+  // const data = params.data ? JSON.parse(params.data as string) : defaultData;
   //FOR TESTING ONLY
 
   const dataAsArr = convertToArray(data);
