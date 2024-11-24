@@ -9,7 +9,7 @@ import os
 import cv2
 import mediapipe as mp
 import math
-
+from bicep_curl_detection import BicepPoseAnalysis
 app = FastAPI()
 # config = {
 #     **dotenv_values(".env"), 
@@ -107,132 +107,100 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
 
-    def calculate_angle(a, b, c):
-        a = [a.x, a.y]
-        b = [b.x, b.y]
-        c = [c.x, c.y]
+    # Determine important landmarks for plank
+    IMPORTANT_LMS = [
+        "NOSE",
+        "LEFT_SHOULDER",
+        "RIGHT_SHOULDER",
+        "RIGHT_ELBOW",
+        "LEFT_ELBOW",
+        "RIGHT_WRIST",
+        "LEFT_WRIST",
+        "LEFT_HIP",
+        "RIGHT_HIP",
+    ]
 
-        radians = math.atan2(c[1] - b[1], c[0] - b[0]) - math.atan2(a[1] - b[1], a[0] - b[0])
-        angle = abs(radians * 180.0 / math.pi)
+    # Generate all columns of the data frame
 
-        if angle > 180.0:
-            angle = 360 - angle
+    HEADERS = ["label"] # Label column
 
-        return angle
-
-    def detect_bicep_curl_form(landmarks, initial_elbow_position):
-        shoulder = landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value]
-        elbow = landmarks[mp_pose.PoseLandmark.RIGHT_ELBOW.value]
-        wrist = landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value]
-
-
-        elbow_angle = calculate_angle(shoulder, elbow, wrist)
-
-        elbow_movement_threshold = 0.05
-        current_elbow_position = (elbow.x, elbow.y)
-        movement_distance = math.sqrt((current_elbow_position[0] - initial_elbow_position[0])**2 +
-                                    (current_elbow_position[1] - initial_elbow_position[1])**2)
-
-        if movement_distance > elbow_movement_threshold:
-            return "Bad form: Elbow moved too much!"
-
-
-        if elbow_angle < 40:
-            return "Curl completed: Good form!"
-        elif elbow_angle > 160:
-            return "Curl started: Good form!"
-        else:
-            return "Curl on-going"
+    for lm in IMPORTANT_LMS:
+        HEADERS += [f"{lm.lower()}_x", f"{lm.lower()}_y", f"{lm.lower()}_z", f"{lm.lower()}_v"]
+    
+    def rescale_frame(frame, percent=50):
+        '''
+        Rescale a frame from OpenCV to a certain percentage compare to its original frame
+        '''
+        width = int(frame.shape[1] * percent/ 100)
+        height = int(frame.shape[0] * percent/ 100)
+        dim = (width, height)
+        return cv2.resize(frame, dim, interpolation =cv2.INTER_AREA)
 
 
-    def process_video1(video_path):
-        # print("here")
-        cap = cv2.VideoCapture(video_path)
+    def save_frame_as_image(frame, message: str = None):
+        '''
+        Save a frame as image to display the error
+        '''
+        now = datetime.datetime.now()
 
-        if not cap.isOpened():
-            print("Error: Could not open video.")
-            return
+        if message:
+            cv2.putText(frame, message, (50, 150), cv2.FONT_HERSHEY_COMPLEX, 0.4, (0, 0, 0), 1, cv2.LINE_AA)
 
-        width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = cap.get(cv2.CAP_PROP_FPS)
-
-        #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        #out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
-        ret, frame = cap.read()
-        if not ret:
-            print("Error: Could not read the video.")
-            return
+        print("Saving ...")
+        cv2.imwrite(f"../data/logs/bicep_{now}.jpg", frame)
 
 
-        image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.flags.writeable = False
-        results = pose.process(image)
+    def calculate_angle(point1: list, point2: list, point3: list) -> float:
+        '''
+        Calculate the angle between 3 points
+        Unit of the angle will be in Degree
+        '''
+        point1 = np.array(point1)
+        point2 = np.array(point2)
+        point3 = np.array(point3)
+
+        # Calculate algo
+        angleInRad = np.arctan2(point3[1] - point2[1], point3[0] - point2[0]) - np.arctan2(point1[1] - point2[1], point1[0] - point2[0])
+        angleInDeg = np.abs(angleInRad * 180.0 / np.pi)
+
+        angleInDeg = angleInDeg if angleInDeg <= 180 else 360 - angleInDeg
+        return angleInDeg
 
 
-        if results.pose_landmarks:
-            initial_elbow_position = (
-                results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ELBOW.value].x,
-                results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_ELBOW.value].y
-            )
-        else:
-            initial_elbow_position = (0, 0)
-        frame_number=0
-        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        form_output_dict={}
-        counter=0
-        rep_form={}
-        bad_rep=False
-        curl_started=False
-        full_range_of_motion=False
-        starting_time_of_rep=0
+    def extract_important_keypoints(results, important_landmarks: list) -> list:
+        '''
+        Extract important keypoints from mediapipe pose detection
+        '''
+        landmarks = results.pose_landmarks.landmark
+
+        data = []
+        for lm in important_landmarks:
+            keypoint = landmarks[mp_pose.PoseLandmark[lm].value]
+            data.append([keypoint.x, keypoint.y, keypoint.z, keypoint.visibility])
+
+        return np.array(data).flatten().tolist()
+    VISIBILITY_THRESHOLD = 0.65
+    STAGE_UP_THRESHOLD = 90
+    STAGE_DOWN_THRESHOLD = 120
+    PEAK_CONTRACTION_THRESHOLD = 60
+    LOOSE_UPPER_ARM_ANGLE_THRESHOLD = 40
+
+    # Initialize analysis classes for left and right arms
+    left_arm_analysis = BicepPoseAnalysis("left", STAGE_DOWN_THRESHOLD, STAGE_UP_THRESHOLD, PEAK_CONTRACTION_THRESHOLD, LOOSE_UPPER_ARM_ANGLE_THRESHOLD, VISIBILITY_THRESHOLD)
+    right_arm_analysis = BicepPoseAnalysis("right", STAGE_DOWN_THRESHOLD, STAGE_UP_THRESHOLD, PEAK_CONTRACTION_THRESHOLD, LOOSE_UPPER_ARM_ANGLE_THRESHOLD, VISIBILITY_THRESHOLD)
+
+    # Global dictionaries for both arms
+    video_reps_left = {}
+    video_reps_right = {}
+
+    frame_number = 0
+    cap = cv2.VideoCapture(videoName)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    with mp_pose.Pose(min_detection_confidence=0.8, min_tracking_confidence=0.8) as pose:
         while cap.isOpened():
-            ret, frame = cap.read()
-            if ret:
-                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                image.flags.writeable = False
-                timestamp=frame_number/fps
-                results = pose.process(image)
-
-                image.flags.writeable = True
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-                mp.solutions.drawing_utils.draw_landmarks(
-                    image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-
-                if results.pose_landmarks:
-                    landmarks = results.pose_landmarks.landmark
-                    form_feedback = detect_bicep_curl_form(landmarks, initial_elbow_position)
-                    if form_feedback=='Curl completed: Good form!' and curl_started:
-                        starting_time=list(rep_form.keys())[0]
-                        ending_time=list(rep_form.keys())[-1]
-                        form_output_dict[counter]={'starting':starting_time, 'ending':ending_time,'bad_rep':bad_rep}
-                        rep_form={}
-                        bad_rep=False
-                        curl_started=False
-                        counter+=1
-                        full_range_of_motion=True
-                    if curl_started and form_feedback=='Curl started: Good form!' and round(timestamp,2)!=round(starting_time_of_rep,2):
-                        starting_time=list(rep_form.keys())[0]
-                        ending_time=list(rep_form.keys())[-1]
-                        form_output_dict[counter]={'starting':starting_time, 'ending':ending_time,'bad_rep':True}
-                        rep_form={}
-                        bad_rep=False
-                        counter+=1
-                    if form_feedback=='Curl started: Good form!' and curl_started==False:
-                        curl_started=True
-                        starting_time_of_rep=timestamp
-                        full_range_of_motion=True
-                    if form_feedback!='Curl completed: Good form!' and curl_started==True:
-                        rep_form[timestamp]=form_feedback
-                    if form_feedback=='Bad_form: Elbow moved too much!':
-                        bad_rep=True
-                    #cv2.putText(image, form_feedback, (10, 30),
-                                #cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                #out.write(image)
-                frame_number+=1
-            else:
+            ret, image = cap.read()
+            if not ret:
                 break
 
         cap.release()
