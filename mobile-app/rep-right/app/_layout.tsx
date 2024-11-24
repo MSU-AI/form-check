@@ -23,6 +23,7 @@ const appConfig = createTamagui(config);
 // }
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import FeedbackTab from "@/components/FeedbackTab";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -55,6 +56,7 @@ export default function RootLayout() {
             <Stack.Screen name="(app)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
+          <FeedbackTab />
         </ThemeProvider>
       </TamaguiProvider>
     </JotaiProvider>
