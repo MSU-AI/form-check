@@ -9,7 +9,7 @@ import os
 import cv2
 import mediapipe as mp
 import math
-from bicep_curl_detection import BicepPoseAnalysis
+from app.bicep_curl_detection import BicepPoseAnalysis
 app = FastAPI()
 # config = {
 #     **dotenv_values(".env"), 
@@ -27,8 +27,8 @@ app.add_middleware(
 )
 
 # load_dotenv()
-# cred = credentials.Certificate("/app/service-account.json")
-cred = credentials.Certificate("./service-account.json")
+cred = credentials.Certificate("/app/service-account.json")
+# cred = credentials.Certificate("./service-account.json")
 default_app = firebase_admin.initialize_app(cred, {
         'storageBucket': 'form-checker-7535c.appspot.com'
 })
@@ -150,35 +150,6 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
         cv2.imwrite(f"../data/logs/bicep_{now}.jpg", frame)
 
 
-    def calculate_angle(point1: list, point2: list, point3: list) -> float:
-        '''
-        Calculate the angle between 3 points
-        Unit of the angle will be in Degree
-        '''
-        point1 = np.array(point1)
-        point2 = np.array(point2)
-        point3 = np.array(point3)
-
-        # Calculate algo
-        angleInRad = np.arctan2(point3[1] - point2[1], point3[0] - point2[0]) - np.arctan2(point1[1] - point2[1], point1[0] - point2[0])
-        angleInDeg = np.abs(angleInRad * 180.0 / np.pi)
-
-        angleInDeg = angleInDeg if angleInDeg <= 180 else 360 - angleInDeg
-        return angleInDeg
-
-
-    def extract_important_keypoints(results, important_landmarks: list) -> list:
-        '''
-        Extract important keypoints from mediapipe pose detection
-        '''
-        landmarks = results.pose_landmarks.landmark
-
-        data = []
-        for lm in important_landmarks:
-            keypoint = landmarks[mp_pose.PoseLandmark[lm].value]
-            data.append([keypoint.x, keypoint.y, keypoint.z, keypoint.visibility])
-
-        return np.array(data).flatten().tolist()
     VISIBILITY_THRESHOLD = 0.65
     STAGE_UP_THRESHOLD = 90
     STAGE_DOWN_THRESHOLD = 120
@@ -194,7 +165,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
     video_reps_right = {}
 
     frame_number = 0
-    cap = cv2.VideoCapture(VIDEO_DEMO_PATH)
+    cap = cv2.VideoCapture(videoName)
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     with mp_pose.Pose(min_detection_confidence=0.8, min_tracking_confidence=0.8) as pose:

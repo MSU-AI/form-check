@@ -4,9 +4,42 @@ import numpy as np
 
 # Initialize MediaPipe modules
 # Path to the video
-VIDEO_DEMO_PATH = "1731254512728.mp4"
+######
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose()
 
 # Rescale frame funct
+
+# Functions
+def calculate_angle(point1: list, point2: list, point3: list) -> float:
+        '''
+        Calculate the angle between 3 points
+        Unit of the angle will be in Degree
+        '''
+        point1 = np.array(point1)
+        point2 = np.array(point2)
+        point3 = np.array(point3)
+
+        # Calculate algo
+        angleInRad = np.arctan2(point3[1] - point2[1], point3[0] - point2[0]) - np.arctan2(point1[1] - point2[1], point1[0] - point2[0])
+        angleInDeg = np.abs(angleInRad * 180.0 / np.pi)
+
+        angleInDeg = angleInDeg if angleInDeg <= 180 else 360 - angleInDeg
+        return angleInDeg
+
+
+def extract_important_keypoints(results, important_landmarks: list) -> list:
+    '''
+    Extract important keypoints from mediapipe pose detection
+    '''
+    landmarks = results.pose_landmarks.landmark
+
+    data = []
+    for lm in important_landmarks:
+        keypoint = landmarks[mp_pose.PoseLandmark[lm].value]
+        data.append([keypoint.x, keypoint.y, keypoint.z, keypoint.visibility])
+
+    return np.array(data).flatten().tolist()
 
 # Define BicepPoseAnalysis class
 class BicepPoseAnalysis:
