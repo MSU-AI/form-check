@@ -19,6 +19,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import axios, { AxiosError, spread } from "axios";
 import "../../../firebaseConfig";
@@ -28,6 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { myItemProps } from "./rep-info/output";
 import { useAtom } from 'jotai';
 import * as jotaistates from '../../../state/jotaistates';
+import { Stack } from "tamagui";
 
 
 // Get a reference to the storage service, which is used to create references in your storage bucket
@@ -82,20 +84,35 @@ export default function CameraViewScreen() {
   //   getMicrophonePermissions();
   // }, []);
 
-  if (!permission.granted || (permissionMic && !permissionMic.granted)) {
+  if (!permission.granted || (!permissionMic?.granted)) {
     // Camera permissions are not granted yet.
     return (
-      <View style={styles.container}>
+      <View style={styles.containerForPerms}>
+        <Stack id="logo" alignItems="center" marginBottom={20}>
+          <Image
+            source={require("../../../rep-right.png")}
+            style={{ width: 300, height: 250 }}
+            resizeMode="contain"
+          />
+        </Stack>
         <Text style={styles.message}>
-          We need your permission to show the camera.
+          We need your permission to show the camera and access your microphone to record videos.
         </Text>
         <Text style={styles.message}>
           Note that if you denied permission once you will need to go to
           settings to enable it, and then restart the app.
         </Text>
-        {!permission.granted && (
-          <Button onPress={requestPermission} title="grant permission" />
+        {(!permission.granted || (!permissionMic?.granted)) && (
+          // <Button onPress={requestPermission} title="grant permission" />
+          <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'gray' : 'black' }, styles.grantPermissionsButton]} onPress={async () => { await requestPermission(); await Camera.requestMicrophonePermissionsAsync(); setPermissionMic(await Camera.getCameraPermissionsAsync()); }} >
+            <Text style={styles.messageNoPadding}>
+              Grant Permissions
+            </Text>
+          </Pressable>
         )}
+        {/* {!permissionMic?.granted && (
+          <Button onPress={async () => { await Camera.getMicrophonePermissionsAsync(); }} title="Grant Mic Perms" />
+        )} */}
         {/* Example button */}
         {/* {!permissionMic!.granted && <Button onPress={async () => setPermissionMic(await Camera.requestMicrophonePermissionsAsync())} title="grant microphone permission" />} */}
       </View>
@@ -234,6 +251,11 @@ export default function CameraViewScreen() {
 //{/* What this should do if when it starts recording change to a stop icon */}
 
 const styles = StyleSheet.create({
+  containerForPerms: {
+    flex: 1,
+    backgroundColor: "#2b2433",
+    justifyContent: "center",
+  },
   blackBackground: {
     backgroundColor: "black",
   },
@@ -244,6 +266,11 @@ const styles = StyleSheet.create({
   message: {
     textAlign: "center",
     paddingBottom: 10,
+    color: "white",
+  },
+  messageNoPadding: {
+    textAlign: "center",
+    color: 'white',
   },
   camera: {
     flex: 1,
@@ -284,5 +311,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     top: 0,
     right: 0,
+  },
+  grantPermissionsButton: {
+    // backgroundColor: "black",
+    padding: 12,
+    margin: 10,
+    borderRadius: 10,
   },
 });
