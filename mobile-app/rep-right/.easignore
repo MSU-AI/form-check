@@ -12,7 +12,7 @@ npm-debug.*
 web-build/
 
 # build paths (exclusing module)
-android
+android/
 !modules/pose-detection-video/android/
 ios/
 !modules/pose-detection-video/ios/
