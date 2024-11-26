@@ -7,16 +7,18 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 export type myItemProps = {
   index?: number;
-  starting: number;
-  ending: number;
-  bad_rep: boolean;
+  starting_time: number;
+  ending_time: number;
+  errors: string[];
 };
 
 const { height } = Dimensions.get("window"); // Get screen height
@@ -54,8 +56,9 @@ const convertToArray = (itemList: { [key: number]: myItemProps }) => {
 // myItemProps & { index: number; onPress: () => void }
 const Item: React.FC<
   myItemProps & { onPress: (item: any) => void; animation: string }
-> = ({ index, starting, ending, bad_rep, onPress, animation }) => {
-  const backgroundColor = bad_rep ? "#ffcccc" : "#ccffcc";
+> = ({ index, starting_time, ending_time, errors, onPress, animation }) => {
+  const backgroundColor = errors.length != 0 ? "#ffcccc" : "#ccffcc";
+  console.log(errors);
 
   return (
     <Animatable.View animation={animation} duration={1000}>
@@ -63,7 +66,7 @@ const Item: React.FC<
         <View style={[styles.item, { backgroundColor }]}>
           <Text style={styles.title}>{`Rep ${index!}`}</Text>
           <Text style={styles.time}>
-            {Math.round((ending - starting) * 100) / 100}
+            {Math.round((ending_time - starting_time) * 100) / 100}
           </Text>
         </View>
       </TouchableOpacity>
@@ -78,10 +81,10 @@ const OutputScreen: React.FC = () => {
     router.push({
       pathname: "/rep-info/detail",
       params: {
-        starting: item.starting,
-        ending: item.ending,
-        time: Math.round((item.ending - item.starting) * 100) / 100,
-        bad_rep: item.bad_rep,
+        starting: item.starting_time,
+        ending: item.ending_time,
+        time: Math.round((item.ending_time - item.starting_time) * 100) / 100,
+        errors: item.errors,
       },
     });
   };
@@ -124,6 +127,17 @@ const OutputScreen: React.FC = () => {
           )}
           keyExtractor={(item, index) => item.index!.toString()}
         />
+        <Pressable
+          style={styles.floatingActionButtonBottomLeft}
+          onPress={() => {
+            router.back();
+          }}>
+          <Ionicons
+            name={/*"return-up-back"*/ "arrow-back"}
+            size={50}
+            color={"black"}
+          />
+        </Pressable>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -158,6 +172,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "gray",
     textAlign: "center",
+  },
+  floatingActionButtonBottomLeft: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    backgroundColor: "white",
+    padding: 12,
+    borderRadius: 10,
   },
 });
 

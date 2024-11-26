@@ -9,7 +9,7 @@ import { useEvent } from "expo";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const DetailScreen = () => {
-  const { starting, ending, bad_rep, time } = useLocalSearchParams();
+  const { starting, ending, errors, time } = useLocalSearchParams();
 
   const [videoUri, setVideoUri] = useAtom(jotaistates.videoLocationAtom);
 
@@ -39,7 +39,8 @@ const DetailScreen = () => {
       player.currentTime = parseFloat(starting as string);
     }
     setCurrTime(player.currentTime);
-    console.log('here');
+    // console.log('here');
+    // console.log(starting, ending, errors, time);
   }, [player.currentTime]);
 
 
@@ -56,20 +57,31 @@ const DetailScreen = () => {
         {/* <Text style={styles.title}>Time: {time}</Text> */}
         {/* <Text>{videoUri}</Text> */}
         <VideoView style={styles.video} player={player} nativeControls={false} allowsFullscreen allowsPictureInPicture />
-        <View style={styles.badOrGoodRep}>
-          {bad_rep == 'true' ?
-            <Text>Bad Rep at time {Math.round((parseFloat(starting as string) + parseFloat(time as string) / 2) * 100) / 100}</Text>
-            :
-            <Text>Good Rep!</Text>
-          }
-        </View>
+        {errors ?
+          // <Text>Bad Rep at time {Math.round((parseFloat(starting as string) + parseFloat(time as string) / 2) * 100) / 100}</Text>
+          //: <Text>Bad Rep at time {Math.round((parseFloat(starting as string) + parseFloat(time as string) / 2) * 100) / 100}</Text>
+          (
+            [...new Set(errors.toString().split(","))].map((error) => {
+              if (error === 'Loose Upper Arm') {
+                return <View style={styles.badOrGoodRep}><Text key={error}>Elbow movement detected</Text></View>
+              }
+              else if (error === 'Peak Contraction Error') {
+                return <View style={styles.badOrGoodRep}><Text key={error}>Not full top range of motion detected.</Text></View>
+              }
+              return <View style={styles.badOrGoodRep}><Text key={error}>{error}</Text></View>
+            })
+          )
+
+          :
+          <View style={styles.badOrGoodRep}><Text>Good Rep!</Text></View>
+        }
         <Pressable
           style={styles.floatingActionButtonBottomLeft}
           onPress={() => {
             router.back();
           }}>
           <Ionicons
-            name={/*"return-up-back"*/ "arrow-back"}
+            name={"arrow-back"}
             size={50}
             color={"black"}
           />

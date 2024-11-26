@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "rep-right",
+    "name": "Rep Right",
     "slug": "rep-right",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./rep-right.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./rep-right.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2b2433"
     },
     "ios": {
       "supportsTablet": true,

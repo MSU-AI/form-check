@@ -8,6 +8,7 @@ import {
   Camera,
   CameraViewRef,
   PermissionResponse,
+  useMicrophonePermissions,
 } from "expo-camera";
 import { useState } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -32,15 +33,20 @@ import * as jotaistates from '../../../state/jotaistates';
 import { Stack } from "tamagui";
 
 
+import { doc, getFirestore, setDoc } from "firebase/firestore";
+
+
 // Get a reference to the storage service, which is used to create references in your storage bucket
 
 const auth = getAuth();
+const db = getFirestore();
 const storage = getStorage();
 
 export default function CameraViewScreen() {
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
+  const [microphonePermission, requestMicrophonePermission] = useMicrophonePermissions();
   const [recording, setRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   // const [cameraRef, setCameraRef] = useState<CameraView | null>(null);
@@ -55,8 +61,18 @@ export default function CameraViewScreen() {
 
   const router = useRouter();
 
-  const handleRedirect = (data: any) => {
+  const handleRedirect = (data: any, videoName: string) => {
     console.log("Redirecting to output page with data: ", data);
+
+    const uid = auth.currentUser ? auth.currentUser.uid : "UID";
+
+    // Set document in Firestore
+    setDoc(doc(db, "data", uid, "userdata", videoName), {
+      videoName: videoName.slice(0, -4),  // Store trimmed video name as a field
+      data: data,
+    }).catch((error: any) => {
+      console.log(error);
+    });
     // router.replace
     router.push({
       pathname: "/(app)/(tabs)/rep-info/output",
@@ -64,7 +80,7 @@ export default function CameraViewScreen() {
     });
   };
 
-  if (!permission) {
+  if (!permission || !microphonePermission) {
     // Only reject if all joints <0.8
     // Camera permissions are still loading.
     return <View />;
@@ -84,7 +100,7 @@ export default function CameraViewScreen() {
   //   getMicrophonePermissions();
   // }, []);
 
-  if (!permission.granted || (!permissionMic?.granted)) {
+  if (!permission.granted || !microphonePermission.granted) {
     // Camera permissions are not granted yet.
     return (
       <View style={styles.containerForPerms}>
@@ -102,9 +118,9 @@ export default function CameraViewScreen() {
           Note that if you denied permission once you will need to go to
           settings to enable it, and then restart the app.
         </Text>
-        {(!permission.granted || (!permissionMic?.granted)) && (
+        {(!permission.granted || (!microphonePermission.granted)) && (
           // <Button onPress={requestPermission} title="grant permission" />
-          <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'gray' : 'black' }, styles.grantPermissionsButton]} onPress={async () => { await requestPermission(); await Camera.requestMicrophonePermissionsAsync(); setPermissionMic(await Camera.getCameraPermissionsAsync()); }} >
+          <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'gray' : 'black' }, styles.grantPermissionsButton]} onPress={async () => { await requestPermission(); await Camera.requestMicrophonePermissionsAsync(); await requestMicrophonePermission(); }} >
             <Text style={styles.messageNoPadding}>
               Grant Permissions
             </Text>
@@ -152,16 +168,39 @@ export default function CameraViewScreen() {
           headers: {
             Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
           },
-          params: { videoName: videoName }, // // videoName 'barbell_biceps_curl_15.mp4'
+          params: { videoName: "1731126191737.mp4" }, // // videoName 'barbell_biceps_curl_15.mp4'  "1731126191737.mp4"
         })
         .then((response) => {
           setLoading(false);
-          console.log(response.data);
-          if (Object.keys(response.data).length === 0) {
-            alert("No reps found");
+          // console.log(response.data);
+          if (!response.data['left'] || !response.data['right']) {
+            if (!response.data['left'] && !response.data['right']) {
+              alert("No reps found");
+              return;
+            }
+            if (!response.data['left']) {
+              handleRedirect(response.data['right'], videoName);
+              return;
+            }
+            handleRedirect(response.data['left'], videoName);
             return;
           }
-          handleRedirect(response.data);
+          let largerList: any = null;
+          // if (response.data['left'] && !(response.data['right'] && Object.keys(response.data.left).length >=)) {
+          //   largerList = response.data['left'];
+          // }
+          if (Object.keys(response.data['left']).length >= Object.keys(response.data['right']).length) {
+            largerList = response.data['left'];
+          }
+          largerList = response.data['right'];
+          handleRedirect(largerList, videoName);
+
+
+          // if (!response.data['left'] || Object.keys(response.data.left).length === 0) {
+          //   alert("No reps found");
+          //   return;
+          // }
+          // handleRedirect(response.data);
         })
         .catch((error: AxiosError) => {
           console.log("Error: ", error.cause, error.code);
