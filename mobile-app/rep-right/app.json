@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.msuai.repright"
+      "bundleIdentifier": "com.repright.repright"
     },
     "android": {
       "adaptiveIcon": {
@@ -57,6 +57,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "0f4e9cbc-b6dd-4bef-abaf-796da67a7615"
       }
     }
   }
