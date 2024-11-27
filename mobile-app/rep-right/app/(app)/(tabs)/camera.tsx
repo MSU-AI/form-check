@@ -173,6 +173,10 @@ export default function CameraViewScreen() {
         .then((response) => {
           setLoading(false);
           // console.log(response.data);
+          if (Object.keys(response.data).length === 0) {
+            alert("No reps found");
+            return;
+          }
           if (!response.data['left'] || !response.data['right']) {
             if (!response.data['left'] && !response.data['right']) {
               alert("No reps found");
