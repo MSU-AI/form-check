@@ -172,17 +172,17 @@ export default function CameraViewScreen() {
         })
         .then((response) => {
           setLoading(false);
-          // console.log(response.data);
+          //console.log(response.data);
           if (Object.keys(response.data).length === 0) {
             alert("No reps found");
             return;
           }
-          if (!response.data['left'] || !response.data['right']) {
-            if (!response.data['left'] && !response.data['right']) {
+          if (Object.keys(response.data.left).length === 0 || Object.keys(response.data.right).length === 0) {
+            if (Object.keys(response.data.left).length === 0 && Object.keys(response.data.right).length === 0) {
               alert("No reps found");
               return;
             }
-            if (!response.data['left']) {
+            if (Object.keys(response.data.left).length === 0) {
               handleRedirect(response.data['right'], videoName);
               return;
             }
