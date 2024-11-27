@@ -168,7 +168,7 @@ export default function CameraViewScreen() {
           headers: {
             Authorization: `Bearer ${await auth.currentUser.getIdToken()}`,
           },
-          params: { videoName: "1731126191737.mp4" }, // // videoName 'barbell_biceps_curl_15.mp4'  "1731126191737.mp4"
+          params: { videoName: videoName }, // // videoName 'barbell_biceps_curl_15.mp4'  "1731126191737.mp4"
         })
         .then((response) => {
           setLoading(false);
