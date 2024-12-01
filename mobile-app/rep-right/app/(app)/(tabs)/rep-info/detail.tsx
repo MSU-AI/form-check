@@ -34,14 +34,38 @@ const DetailScreen = () => {
 
   const [currTime, setCurrTime] = useState(0);
 
+  // useEffect(() => {
+  //   if (player.currentTime >= parseFloat(ending as string)) {
+  //     player.currentTime = parseFloat(starting as string);
+  //   }
+  //   setCurrTime(player.currentTime);
+  //   // console.log('here');
+  //   // console.log(starting, ending, errors, time);
+  // }, [player.currentTime]);
   useEffect(() => {
-    if (player.currentTime >= parseFloat(ending as string)) {
-      player.currentTime = parseFloat(starting as string);
-    }
-    setCurrTime(player.currentTime);
-    // console.log('here');
-    // console.log(starting, ending, errors, time);
-  }, [player.currentTime]);
+    const interval = setInterval(() => {
+      if (player.currentTime >= parseFloat(ending as string) || player.currentTime >= player.duration || player.currentTime <= parseFloat(starting as string)) {
+        player.currentTime = parseFloat(starting as string);
+      }
+    }, 100); // Check every 100ms for smooth playback
+    return () => clearInterval(interval);
+  }, [player, starting, ending]);
+
+  // useEffect(() => {
+  //   const handleTimeUpdate = () => {
+  //     if (player.currentTime >= parseFloat(ending as string)) {
+  //       player.currentTime = parseFloat(starting as string); // Loop back to start
+  //     }
+  //   };
+
+  //   // Add event listener for time updates
+  //   player.addListener("timeUpdate", handleTimeUpdate);
+
+  //   // Clean up the event listener
+  //   return () => {
+  //     player.removeListener("timeUpdate", handleTimeUpdate);
+  //   };
+  // }, [player, starting, ending]);
 
 
   /**
