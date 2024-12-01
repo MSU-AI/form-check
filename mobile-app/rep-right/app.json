@@ -17,10 +17,10 @@
       "bundleIdentifier": "com.repright.repright"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
+      // "adaptiveIcon": {
+      //   "foregroundImage": "./assets/images/adaptive-icon.png",
+      //   "backgroundColor": "#ffffff"
+      // },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
