@@ -78,7 +78,7 @@ def get_firebase_user_from_token(
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"status": "OK"}
 
 @app.get("/process_video")
 async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_token)],
