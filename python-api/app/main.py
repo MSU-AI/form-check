@@ -199,6 +199,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
 
     cap.release()
     cv2.destroyAllWindows()
+    os.remove(videoName)
 
     return {"left": video_reps_left, "right": video_reps_right}
     # send bearer and name to firebase
