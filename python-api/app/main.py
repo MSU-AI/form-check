@@ -154,7 +154,7 @@ async def process_video(user: Annotated[dict, Depends(get_firebase_user_from_tok
     STAGE_UP_THRESHOLD = 80
     STAGE_DOWN_THRESHOLD = 120
     PEAK_CONTRACTION_THRESHOLD = 65
-    LOOSE_UPPER_ARM_ANGLE_THRESHOLD = 40
+    LOOSE_UPPER_ARM_ANGLE_THRESHOLD = 20
 
     # Initialize analysis classes for left and right arms
     left_arm_analysis = BicepPoseAnalysis("left", STAGE_DOWN_THRESHOLD, STAGE_UP_THRESHOLD, PEAK_CONTRACTION_THRESHOLD, LOOSE_UPPER_ARM_ANGLE_THRESHOLD, VISIBILITY_THRESHOLD)
