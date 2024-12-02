@@ -13,6 +13,10 @@
       "backgroundColor": "#2b2433"
     },
     "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app requires access to the camera.",
+        "NSMicrophoneUsageDescription": "This app requires access to the microphone."
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.repright.repright"
     },
