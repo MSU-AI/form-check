@@ -1,3 +1,4 @@
+.env*
 node_modules/
 .expo/
 dist/
@@ -9,10 +10,9 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-firebaseConfig.js
 
 # build paths (exclusing module)
-android
+android/
 !modules/pose-detection-video/android/
 ios/
 !modules/pose-detection-video/ios/
@@ -25,5 +25,3 @@ ios/
 
 expo-env.d.ts
 # @end expo-cli
-
-../../python-api/.venv/

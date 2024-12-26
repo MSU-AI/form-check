@@ -5,16 +5,25 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { createTamagui, TamaguiProvider } from "tamagui";
-import defaultConfig from "@tamagui/config/v3";
+import { TamaguiProvider, createTamagui } from "@tamagui/core";
+import { config } from "@tamagui/config/v3";
 
-const config = createTamagui(defaultConfig);
+import { Provider as JotaiProvider } from "jotai";
+
+const appConfig = createTamagui(config);
+
+// TypeScript types across all Tamagui APIs
+// type Conf = typeof tamaguiConfig
+// declare module '@tamagui/core' {
+//   interface TamaguiCustomConfig extends Conf { }
+// }
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import FeedbackTab from "@/components/FeedbackTab";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -37,16 +46,19 @@ export default function RootLayout() {
   }
 
   return (
-    <TamaguiProvider config={config}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack initialRouteName="signin">
-          <Stack.Screen name="signin" options={{ headerShown: false }} />
-          <Stack.Screen name="signup" options={{ headerShown: false }} />
-          {/* <Stack.Screen name="forgot-password" options={{ headerShown: false }} /> TODO */}
-          <Stack.Screen name="(app)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </ThemeProvider>
-    </TamaguiProvider>
+    <JotaiProvider>
+      <TamaguiProvider config={appConfig}>
+        <ThemeProvider value={DarkTheme}>
+          <Stack initialRouteName="signin">
+            <Stack.Screen name="signin" options={{ headerShown: false }} />
+            <Stack.Screen name="signup" options={{ headerShown: false }} />
+            {/* <Stack.Screen name="forgot-password" options={{ headerShown: false }} /> TODO */}
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <FeedbackTab />
+        </ThemeProvider>
+      </TamaguiProvider>
+    </JotaiProvider>
   );
 }

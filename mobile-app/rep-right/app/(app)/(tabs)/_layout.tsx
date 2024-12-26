@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Stack, Tabs } from "expo-router";
 import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
@@ -8,14 +8,13 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
-      // initialRouteName="index"
+    <Stack
+      initialRouteName="camera"
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
       }}
     >
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="index"
         options={{
           title: "Home",
@@ -38,19 +37,20 @@ export default function TabLayout() {
             />
           ),
         }}
-      />
-      <Tabs.Screen
+      /> */}
+      <Stack.Screen
         name="camera"
         options={{
-          title: "Camera",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "camera" : "camera-outline"}
-              color={color}
-            />
-          ),
+          headerShown: false,
         }}
       />
-    </Tabs>
+
+      <Stack.Screen
+        name="rep-info"
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
   );
 }
