@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Button, Input, YStack, Text, Stack } from "tamagui";
-import { Image } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -20,7 +25,7 @@ export default function SignInScreen() {
         password
       );
       const user = userCredential.user;
-      router.replace("/(app)/(tabs)/explore");
+      router.replace("/(app)/(tabs)/camera");
     } catch (error) {
       setLoading(false);
       if (error instanceof Error) {
@@ -36,105 +41,115 @@ export default function SignInScreen() {
   return (
     <YStack
       flex={1}
-      justifyContent="flex-start"
+      justifyContent="center"
       alignItems="center"
       backgroundColor="#2b2433"
       padding="$6"
       space="$4"
-      paddingTop="$10"
     >
-      <Stack id="logo" marginTop={40} space={20}>
+      {/* Logo Section */}
+      <Stack id="logo" alignItems="center" marginBottom={20}>
         <Image
           source={require("../rep-right.png")}
-          style={{ width: 300, height: 250, marginBottom: 10, marginTop: -30 }}
+          style={{ width: 300, height: 250 }}
           resizeMode="contain"
         />
       </Stack>
-      <Stack id="signin+box" margin={60} space={20}>
-        <Text
-          fontSize="$9"
+
+      <Text
+        fontSize="$9"
+        fontWeight="bold"
+        color="white"
+        textAlign="center"
+        // marginBottom={10}
+      >
+        Sign In
+      </Text>
+
+      {/* Sign-In Section */}
+      <Stack
+        id="signin-box"
+        width={320}
+        padding="$4"
+        backgroundColor="white"
+        borderRadius="$9"
+        shadowColor="rgba(0, 0, 0, 0.3)"
+        shadowRadius={5}
+        shadowOffset={{ width: 0, height: 10 }}
+        shadowOpacity={0.2}
+        space={15}
+      >
+        {/* Email Input */}
+        <Input
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          placeholderTextColor="#999"
+          padding="$3"
+          color={"black"}
+          borderRadius="$4"
+          borderWidth={1}
+          borderColor="#e0e0e0"
+          backgroundColor="#f7f7f7"
+          // marginBottom={10}
+        />
+
+        {/* Password Input */}
+        <Input
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Password"
+          placeholderTextColor="#999"
+          secureTextEntry
+          padding="$3"
+          color={"black"}
+          borderRadius="$4"
+          borderWidth={1}
+          borderColor="#e0e0e0"
+          backgroundColor="#f7f7f7"
+          // marginBottom={15}
+        />
+
+        {/* Sign In Button */}
+        <Button
+          onPress={handleSignIn}
+          disabled={loading}
+          backgroundColor="#8B5E5E"
+          hoverStyle={{ backgroundColor: "#6f4f4f" }}
           color="white"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontWeight="bold"
-          textAlign="center"
-          marginBottom="$100"
-          marginTop={-20}
-        >
-          Sign In
-        </Text>
-        <Stack
-          width={300}
-          padding="$4"
-          backgroundColor="white"
-          borderRadius="$9"
-          shadowColor="rgba(0, 0, 0, 0.3)"
+          paddingVertical={12}
+          borderRadius={8}
+          shadowColor="rgba(0, 0, 0, 0.2)"
           shadowRadius={5}
-          shadowOffset={{ width: 0, height: 10 }}
-          shadowOpacity={0.2}
-          space={9}
-          marginTop={-1}
+          shadowOffset={{ width: 0, height: 5 }}
+          marginBottom={10}
         >
-          <Input
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor="$gray10"
-            padding="$3"
-            borderRadius="$4"
-            borderColor="$borderColor"
-            shadowColor="$shadowColor"
-            shadowRadius={2}
-            shadowOffset={{ width: 0, height: 2 }}
-          />
-          <Input
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            placeholderTextColor="$gray10"
-            secureTextEntry
-            padding="$3"
-            borderRadius="$4"
-            borderColor="$borderColor"
-            shadowColor="$shadowColor"
-            shadowRadius={2}
-            shadowOffset={{ width: 0, height: 2 }}
-          />
-          <Button
-            onPress={handleSignIn}
-            disabled={loading}
-            backgroundColor="#876464"
-            hoverStyle={{ backgroundColor: "#6f4f4f" }}
-            color="white"
-            shadowColor="$shadowColor"
-            shadowRadius={2}
-            shadowOffset={{ width: 0, height: 2 }}
-            padding={3}
-            borderRadius={4}
-          >
-            {loading ? "Signing In..." : "Sign In"}
-          </Button>
-          <Text
-            marginTop={5}
-            color="$gray10"
-            fontWeight="bold"
-            textAlign="center"
-          >
-            Don't have an account?
-          </Text>
-          <Button
-            variant="outlined"
-            onPress={() => router.replace("/signup")}
-            color="$blue10"
-            borderColor="$blue10"
-            borderWidth={1}
-            borderRadius="$4"
-            hoverStyle={{ backgroundColor: "$blue2" }}
-          >
-            Sign up
-          </Button>
-        </Stack>
+          {loading ? "Signing In..." : "Sign In"}
+        </Button>
+
+        {/* Sign-Up Section */}
+        <Text
+          textAlign="center"
+          fontSize={14}
+          color="#888"
+          marginBottom={5}
+          fontWeight="bold"
+        >
+          Don't have an account?
+        </Text>
+        <Button
+          variant="outlined"
+          onPress={() => router.replace("/signup")}
+          color="#007BFF"
+          borderColor="#007BFF"
+          borderWidth={1}
+          borderRadius={8}
+          paddingVertical={12}
+          hoverStyle={{ backgroundColor: "#e6f0ff" }}
+          marginTop={-10}
+        >
+          Sign up
+        </Button>
       </Stack>
     </YStack>
   );

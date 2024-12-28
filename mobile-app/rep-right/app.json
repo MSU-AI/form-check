@@ -1,25 +1,27 @@
 {
   "expo": {
-    "name": "rep-right",
+    "name": "Rep Right Training",
     "slug": "rep-right",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./rep-right.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./rep-right.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2b2433"
     },
     "ios": {
-      "supportsTablet": true
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app requires access to the camera.",
+        "NSMicrophoneUsageDescription": "This app requires access to the microphone."
+      },
+      "supportsTablet": true,
+      "bundleIdentifier": "com.repright.repright"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
@@ -41,10 +43,25 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "0f4e9cbc-b6dd-4bef-abaf-796da67a7615"
+      }
     }
   }
 }
