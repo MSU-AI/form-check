@@ -42,109 +42,110 @@ export default function SignUpScreen() {
   return (
     <YStack
       flex={1}
-      justifyContent="flex-start"
+      justifyContent="center"
       alignItems="center"
-      backgroundColor="#2b2433" // Dark background
+      backgroundColor="#2b2433"
       padding="$6"
       space="$4"
-      paddingTop="$10"
     >
       {/* Logo Section */}
-      <Stack id="logo" marginTop={40} space={20}>
+      <Stack id="logo" alignItems="center" marginBottom={20}>
         <Image
-          source={require("../rep-right.png")} // Your logo
+          source={require("../rep-right.png")}
           style={{ width: 300, height: 250 }}
           resizeMode="contain"
         />
       </Stack>
 
-      {/* Card Section */}
+      <Text
+        fontSize="$9"
+        fontWeight="bold"
+        color="white"
+        textAlign="center"
+      // marginBottom={10}
+      >
+        Sign Up
+      </Text>
+
+      {/* Sign-In Section */}
       <Stack
         id="signup-box"
-        marginTop={-30}
-        space={20}
-        alignItems="center"
         width={320}
+        padding="$4"
+        backgroundColor="white"
+        borderRadius="$9"
+        shadowColor="rgba(0, 0, 0, 0.3)"
+        shadowRadius={5}
+        shadowOffset={{ width: 0, height: 10 }}
+        shadowOpacity={0.2}
+        space={15}
       >
-        <Text fontSize="$9" color="white" fontWeight="bold" textAlign="center">
-          Sign Up
-        </Text>
-        <Stack
-          width={320}
-          padding="$4"
-          backgroundColor="white"
-          borderRadius="$9"
-          shadowColor="rgba(0, 0, 0, 0.3)"
-          shadowRadius={5}
-          shadowOffset={{ width: 0, height: 10 }}
-          shadowOpacity={0.2}
-          space={15}
+        {/* Email Input */}
+        <Input
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          placeholderTextColor="gray"
+          padding={12} // Slightly reduced padding
+          borderRadius={8}
+          color={"black"}
+          borderWidth={1}
+          borderColor="#ddd"
+          backgroundColor="#f7f7f7" // Light gray background
+        />
+
+        {/* Password Input */}
+        <Input
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Password"
+          placeholderTextColor="gray"
+          secureTextEntry
+          padding={12} // Slightly reduced padding
+          borderRadius={8}
+          borderWidth={1}
+          color={"black"}
+          borderColor="#ddd"
+          backgroundColor="#f7f7f7" // Light gray background
+        />
+
+        {/* Sign Up Button */}
+        <Button
+          onPress={handleSignUp}
+          disabled={loading}
+          backgroundColor="#8B5E5E" // Muted brown for consistency
+          hoverStyle={{ backgroundColor: "#6f4f4f" }}
+          color="white"
+          paddingVertical={12}
+          borderRadius={8}
+          marginBottom={10}
         >
-          {/* Email Input */}
-          <Input
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor="gray"
-            padding={12} // Slightly reduced padding
-            borderRadius={8}
-            color={"black"}
-            borderWidth={1}
-            borderColor="#ddd"
-            backgroundColor="#f7f7f7" // Light gray background
-          />
+          {loading ? "Signing Up..." : "Sign Up"}
+        </Button>
 
-          {/* Password Input */}
-          <Input
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            placeholderTextColor="gray"
-            secureTextEntry
-            padding={12} // Slightly reduced padding
-            borderRadius={8}
-            borderWidth={1}
-            color={"black"}
-            borderColor="#ddd"
-            backgroundColor="#f7f7f7" // Light gray background
-          />
+        <Text
+          textAlign="center"
+          fontSize={14}
+          color="#888"
+          marginBottom={5}
+          fontWeight="bold"
+        >
+          Already have an account?
+        </Text>
 
-          {/* Sign Up Button */}
-          <Button
-            onPress={handleSignUp}
-            disabled={loading}
-            backgroundColor="#8B5E5E" // Muted brown for consistency
-            hoverStyle={{ backgroundColor: "#6f4f4f" }}
-            color="white"
-            paddingVertical={12}
-            borderRadius={8}
-          >
-            {loading ? "Signing Up..." : "Sign Up"}
-          </Button>
-
-          <Text
-            marginTop={10}
-            color="#888"
-            textAlign="center"
-            fontWeight="bold"
-          >
-            Already have an account?
-          </Text>
-
-          {/* Sign In Button */}
-          <Button
-            onPress={() => router.replace("/signin")}
-            borderColor="#007BFF"
-            borderWidth={1.5}
-            color="#007BFF"
-            backgroundColor="transparent"
-            paddingVertical={12}
-            borderRadius={8}
-            hoverStyle={{ backgroundColor: "#e6f0ff" }}
-          >
-            Sign In
-          </Button>
-        </Stack>
+        {/* Sign In Button */}
+        <Button
+          onPress={() => router.replace("/signin")}
+          color="#007BFF"
+          borderColor="#007BFF"
+          borderWidth={1}
+          borderRadius={8}
+          paddingVertical={12}
+          hoverStyle={{ backgroundColor: "#e6f0ff" }}
+          marginTop={-10}
+        >
+          Sign In
+        </Button>
       </Stack>
     </YStack>
   );
