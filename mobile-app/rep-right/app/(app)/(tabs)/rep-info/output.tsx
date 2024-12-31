@@ -131,7 +131,8 @@ const OutputScreen: React.FC = () => {
           style={styles.floatingActionButtonBottomLeft}
           onPress={() => {
             router.back();
-          }}>
+          }}
+        >
           <Ionicons
             name={/*"return-up-back"*/ "arrow-back"}
             size={50}
