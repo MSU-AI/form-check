@@ -24,16 +24,11 @@ Form-Check is an AI-powered application designed to analyze fitness form and pro
 ---
 
 ## Screenshots
-### Video Upload Screen
-![Video Upload Screen](https://via.placeholder.com/600x400?text=Video+Upload+Screen)
+### Login Screen
+![Login Screen](./screenshots/landingPage.png)
 
 ### Analysis Summary
-![Analysis Summary](https://via.placeholder.com/600x400?text=Analysis+Summary)
-
-### Firebase Storage Integration
-![Firebase Storage Integration](https://via.placeholder.com/600x400?text=Firebase+Storage+Integration)
-
-*(Replace the placeholder images with actual screenshots of your app.)*
+![Analysis Summary](./screenshots/analysisPage.png)
 
 ---
 
