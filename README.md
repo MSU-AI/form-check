@@ -25,7 +25,7 @@ Form-Check is an AI-powered application designed to analyze fitness form and pro
 
 ## Screenshots
 ### Login Screen
-![Login Screen](./screenshots/landingPage.png)
+![Login Screen](./screenshots/loginPage.png)
 
 ### Analysis Summary
 ![Analysis Summary](./screenshots/analysisPage.png)
